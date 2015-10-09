@@ -309,9 +309,9 @@ Page Tables:
 0x410 & 0x10& 0x1 & m &     &     &     &     &     &     &     &     \\
 0x110 & 0x4 & 0x1 & h &     &     &     & 0x10&     &     &     &     \\
 0x510 & 0x14& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     & 0x14&     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & m &     &     & 0x14&     &     &     &     &     \\
 0x610 & 0x18& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     &     & 0x18&     &     &     &     \\
+0x110 & 0x4 & 0x1 & m &     &     &     & 0x18&     &     &     &     \\
 0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
 \Xhline{2\arrayrulewidth}
 \multicolumn{12}{l}{\textbf{Number of Misses = 14}}
@@ -322,6 +322,119 @@ Page Tables:
 \caption{Two-Way Set-Associative Cache Contents Over Time with FIFO Replacement}
 \end{figure}
 
-\subsection{}
+\subsection{Sequential Tag Check then Memory Access}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\hline
+\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
+\hline
+addr_reg_M0 & 1 & 1 \\
+tag_decoder & 3 + 2$\times$2 & 7 \\
+tag_mem 	& 10 + [(4+27)/16] & 12 \\
+tag_cmp		& 3 + 2[log2(26)] & 13 \\
+tag_and		& 2 - 1 & 1\\
+data_decoder& 3 + 2$\times$3 & 9 \\
+data_mem	& 10 + [(8+128)/16] & 19 \\
+rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
+rdata_reg_M1& 1 & 1
+\hline
+\textbf{Total} & & \textbf{73} \\
+addr_reg_M0 & 1 & 1 \\
+tag_decoder & 3 + 2$\times$2 & 7 \\
+tag_mem 	& 10 + [(4+27)/16] & 12 \\
+tag_cmp		& 3 + 2[log2(26)] & 13 \\
+tag_and		& 2 - 1 & 1\\
+data_decoder& 3 + 2$\times$3 & 9 \\
+data_mem	& 10 + [(8+128)/16] & 19 \\
+\hline
+\textbf{Total} & & \textbf{62} \\
+\hline
+\end{tabular}
+\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with 
+\\ Serialized Tag Check before Data Access}
+\end{figure}
+The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the need for the tag check result to go through the data_decoder. It happens that the data_decoder?s delay is relatively significant (9$\tau$). This connection is needed so that the data can be outputted from the correct way. 
 
+\subsection{Parallel Read Hit Path}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\hline
+\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
+\hline
+addr_reg_M0 & 1 & 1 \\
+addr_mux	& 3[log2(2)] + [5/8] & 4
+data_decoder& 3 + 2$\times$3 & 9 \\
+data_mem	& 10 + [(8+128)/16] & 19 \\
+rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
+rdata_reg_M1& 1 & 1
+\hline
+\textbf{Total} & & \textbf{44} \\
+\hline
+\end{tabular}
+\caption{Critical Path and Cycle Time for Direct Mapped Cache with
+\\ Parallel Read Hit}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\hline
+\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
+\hline
+addr_reg_M0 & 1 & 1 \\
+addr_mux	& 3[log2(2)] + [5/8] & 4
+data_decoder& 3 + 2$\times$2 & 7 \\
+data_mem	& 10 + [(8+128)/16] & 19 \\
+rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
+way_mux		& 3[log2(2)] + [32/8] & 7 \\
+rdata_reg_M1& 1 & 1
+\hline
+\textbf{Total} & & \textbf{49} \\
+\hline
+\end{tabular}
+\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
+\\ Parallel Read Hit}
+\end{figure}
+The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the way\_mux, which is needed to output the data from the correct way. This mux has a delay of 7$\tau$, which is relatively significant. 
+
+\subsection{Pipelined Write Hit Path}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\hline
+\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
+\hline
+addr_reg_M0 & 1 & 1 \\
+tag_decoder & 3 + 2$\times$3 & 9 \\
+tag_mem 	& 10 + [(8+26)/16] & 13 \\
+tag_cmp		& 3 + 2[log2(25)] & 13 \\
+tag_and		& 2 - 1 & 1\\
+wen_and		& 2 - 1 & 1\\
+wen_reg_M1	& 1 & 1\\
+\hline
+\textbf{Total} & & \textbf{39} \\
+\hline
+\end{tabular}
+\caption{Critical Path and Cycle Time for Direct Mapped Cache with
+\\ Pipelined Write Hit}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\hline
+\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
+\hline
+addr_reg_M0 & 1 & 1 \\
+tag_decoder & 3 + 2$\times$2 & 7 \\
+tag_mem 	& 10 + [(4+27)/16] & 12 \\
+tag_cmp		& 3 + 2[log2(25)] & 13 \\
+tag_and		& 2 - 1 & 1\\
+wen_and		& 2 - 1 & 1\\
+wen_reg_M1	& 1 & 1\\
+\hline
+\textbf{Total} & & \textbf{36} \\
+\hline
+\end{tabular}
+\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
+\\ Pipelined Write Hit}
+\end{figure}
 \end{document}
