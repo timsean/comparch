@@ -59,12 +59,19 @@
 \textbf{Addr} &\textbf{Instruction}& \textbf{Iteration 1} & \textbf{Iteration 2}\\
 \hline
 & loop: & & \\
+\hline
 0x108 & \tableindent addiu r1, r1, -1 & compulsory & \\
+\hline
 0x10c & \tableindent addiu r2, r2, -1 & 		   & \\
+\hline
 0x110 & \tableindent j foo			  & compulsory & conflict \\
+\hline
 	  & ...							  & 		   & \\
+\hline
 	  & foo:						  & 		   & \\
+\hline
 0x218 & \tableindent addiu r6, r6, 1  & compulsory & conflict \\
+\hline
 0x21c & \tableindent bne r1, r0, loop & 	       & \\
 \hline
 \end{tabular}
@@ -84,107 +91,116 @@ The cache performance will increase significantly, because there will no longer 
 The 16-bit virtual address is used as the following:
 \begin{figure}[H]
 \centering
-\begin{tabular}{clcc}
+\begin{tabular}{|c|c|c|}
 \hline
-\textbf{Addr} &\textbf{Instruction}& \textbf{Iteration 1} & \textbf{Iteration 2}\\
+Bits 14-15 & Bits 12-13 & Bits 0-11 \\
 \hline
-& loop: & & \\
-0x108 & \tableindent addiu r1, r1, -1 & compulsory & \\
-0x10c & \tableindent addiu r2, r2, -1 & 		   & \\
-0x110 & \tableindent j foo			  & compulsory & conflict \\
-	  & ...							  & 		   & \\
-	  & foo:						  & 		   & \\
-0x218 & \tableindent addiu r6, r6, 1  & compulsory & conflict \\
-0x21c & \tableindent bne r1, r0, loop & 	       & \\
+XX & XX & XXXXXXXXXXXX \\
+\hline
+\multicolumn{2}{|c}{Virtual Page Number} & Page Offset \\
+L1 Index & L2 Index & Page Offset \\
 \hline
 \end{tabular}
-\caption{Cache Miss Type}
+\caption{Virtual Address Usage}
 \end{figure}
-
+Page Tables:
 \begin{figure}[H]
 \centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}llcccccccccccccccccccc@{}}
+{
+\begin{tabular}{@{\extracolsep{3pt}}lcc@{}}
+\Xhline{2\arrayrulewidth}
+& \multicolumn{2}{c}{\textbf{Page-Table Entry}}
+\textbf{Paddr of PTE} & \textbf{Valid} & \textbf{Paddr}\\
+\Xhline{2\arrayrulewidth}
+0xffffc & 1 & 0xfffe0 \\
 \hline
-& & \multicolumn{5}{c}{\textbf{Bus Enables}}
-& \multicolumn{6}{c}{\textbf{Register Enables}}
-& \multicolumn{2}{c}{\textbf{Mux}}
-& \multicolumn{2}{c}{\textbf{Func}}
-& \multicolumn{2}{c}{\textbf{RF}}
-& \multicolumn{2}{c}{\textbf{mreq}}\\
-\cline{3-7} 
-\cline{8-13}
-\cline{14-15}
-\cline{16-17}
-\cline{18-19}
-\cline{20-21} 
-\textbf{State} & \textbf{Pseudo Control Sigs} & \textbf{pc} & \textbf{iau} & \textbf{alu} & \textbf{rf} & \textbf{rd} & \textbf{pc} & \textbf{ir} & \textbf{a} & \textbf{b} & \textbf{c} & \textbf{wd} & \textbf{b} & \textbf{c} & \textbf{iau} & \textbf{alu} & \textbf{sel} & \textbf{wen} & \textbf{val} & \textbf{op} & \textbf{next} \\
+0xffff8 & &  \\
 \hline
-M0: & A <- RF[rt] &0&0&0&1&0&0&0&1&0&0&0&x&x&x&x&rt&0&0&x&n \\
+0xffff4 & &  \\
 \hline
-M1: & B <- RF[r0] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&r0&0&0&x&n\\
+0xffff0 & 1 & 0xfffb0 \\
+\Xhline{2\arrayrulewidth}
+0xfffec & 1 & 0x05000 \\
 \hline
-M2: & A<-RF[rs];goto F0 if A=B &0&0&1&1&0&0&0&1&0&0&0&x&x&x&cmp&rs&0&0&x&b\\
+0xfffe8 & 1 & 0x07000 \\
 \hline
-M3: & RF[rd] <- A &0&0&1&1&0&0&0&0&0&0&0&x&x&x&cpa&rd&1&0&x&f\\
+0xfffe4 & &  \\
+\hline
+0xfffe0 & & \\
+\Xhline{2\arrayrulewidth}
+0xfffdc & & \\
+\hline
+0xfffd8 & &  \\
+\hline
+0xfffd4 & &  \\
+\hline
+0xfffd0 & & \\
+\Xhline{2\arrayrulewidth}
+0xfffcc & & \\
+\hline
+0xfffc8 & &  \\
+\hline
+0xfffc4 & &  \\
+\hline
+0xfffc0 & & \\
+\Xhline{2\arrayrulewidth}
+0xfffbc & 1 & 0x01000\\
+\hline
+0xfffb8 & 1 & 0x04000\\
+\hline
+0xfffb4 & 1 & 0x00000 \\
+\hline
+0xfffb0 & & \\
+\Xhline{2\arrayrulewidth}
+\end{tabular}
+}
+\caption{Contents of Physical Memory with Page Tables}
+\end{figure}
+
+\subsection{Translation-Lookaside Buffer}
+\begin{figure}[H]
+\centering
+{
+\begin{tabular}{@{\extracolsep{3pt}}ccccccccc@{}}
+\hline
+& & & & \textbf{Total} & & & & \\
+\textbf{Transaction} & & \textbf{Page} & & \textbf{Num Mem} & \multicolumn{2}{c}{\textbf{TLB Way 0}} & \multicolumn{2}{c}{\textbf{TLB Way 1}} \\
+\cline{6-7}
+\cline{8-9}
+\textbf{Address} & \textbf{VPN} & \textbf{Offset} & \textbf{m/h} & \textbf{Accesses} & \textbf{VPN} & \textbf{PPN} & \textbf{VPN} & \textbf{PPN} \\
+\hline
+0xeff4 & 0xe & 0xff4 & m & 3 & - & - & - & - \\
+\hline
+0x2ff0 & 0x2 & 0xff0 & m & 3 & 0xe & 0x07 & & \\
+\hline
+0xeff8 & 0xe & 0xff8 & h & 1 &  &  & 0x2 & 0x04 \\
+\hline
+0x2ff4 & 0x2 & 0xff4 & h & 1 & & & & \\
+\hline
+0xeffc & 0xe & 0xffc & h & 1 & & & & \\
+\hline
+0x2ff8 & 0x2 & 0xff8 & h & 1 & & & & \\
+\hline
+0xf000 & 0xf & 0x000 & m & 3 & & & & \\
+\hline
+0x2ffc & 0x2 & 0xffc & h & 1 & 0xf & 0x05 & & \\
+\hline
+0xf004 & 0xf & 0x004 & h & 1 & & & & \\
+\hline
+0x3000 & 0x3 & 0x000 & m & 3 & & & & \\
+\hline
+0xf008 & 0xf & 0x008 & h & 1 & & & 0x3 & 0x01 \\
+\hline
+0x3004 & 0x3 & 0x004 & h & 1 & & & 0x2 & 0x04 \\
+\hline
+0xf00c & 0xf & 0x00c & h & 1 & & & & \\
+\hline
+0x3008 & 0x3 & 0x008 & h & 1 & & & & \\
 \hline
 \end{tabular}
 }
-\caption{Microcode table for movn}
-\label{fig:conditional_move}
+\caption{TLB Contents Over Time}
 \end{figure}
-M0 and M1 puts the values of rt and r0 into registers A and B respectively for comparison by the ALU. This is to check and see if rt is 0. M2 uses the cmp function of the ALU to check if rt is 0 and goto F0 (skip to next instruction) if rt is 0 by setting the next state to b. If rt is not 0, then the FSM will continue to execute states M3 and M4. M3 gets the value of rs and temporarily puts it in register A. M4 moves the value in register A to rd by utilizing the cpa (copy A to output) function of the ALU. This completes the microcode program for movn.
-
-\subsection{Implementing Memory-Memory Increment Instruction}
-\begin{figure}[H]
-\centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}llcccccccccccccccccccc@{}}
-\hline
-& & \multicolumn{5}{c}{\textbf{Bus Enables}}
-& \multicolumn{6}{c}{\textbf{Register Enables}}
-& \multicolumn{2}{c}{\textbf{Mux}}
-& \multicolumn{2}{c}{\textbf{Func}}
-& \multicolumn{2}{c}{\textbf{RF}}
-& \multicolumn{2}{c}{\textbf{mreq}}\\
-\cline{3-7} 
-\cline{8-13}
-\cline{14-15}
-\cline{16-17}
-\cline{18-19}
-\cline{20-21} 
-\textbf{State} & \textbf{Pseudo Control Sigs} & \textbf{pc} & \textbf{iau} & \textbf{alu} & \textbf{rf} & \textbf{rd} & \textbf{pc} & \textbf{ir} & \textbf{a} & \textbf{b} & \textbf{c} & \textbf{wd} & \textbf{b} & \textbf{c} & \textbf{iau} & \textbf{alu} & \textbf{sel} & \textbf{wen} & \textbf{val} & \textbf{op} & \textbf{next} \\
-\hline
-I0: & C <- si(imm) &0&0&0&0&0&0&1&0&0&1&0&x&b&si&x&x&0&0&x&n \\
-\hline
-I1: & B <- RF[rs] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&rs&0&0&x&n\\
-\hline
-I2: & A <- RF[r0] &0&0&0&1&0&0&0&1&0&0&0&x&x&x&x&r0&0&0&x&n\\
-\hline
-I3: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
-\hline
-I4: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
-\hline
-I5: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
-\hline
-I6: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&0&0&0&x&x&x&+?&x&0&0&x&n\\
-\hline
-I7: & B <- RF[rt] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&rt&0&0&x&n\\
-\hline
-I8: & mreq\_addr<-B<-A+B &0&0&1&0&0&0&0&0&1&0&0&b&x&x&+&x&0&1&r&n\\
-\hline
-I9: & A <- RD &0&0&0&0&1&0&0&1&0&0&0&x&x&x&x&x&0&0&x&n\\
-\hline
-I10: & WD <- A+1 &0&0&1&0&0&0&0&0&0&0&1&x&x&x&+1&x&0&0&x&n\\
-\hline
-I11: & mreq\_addr <- B &0&0&1&0&0&0&0&0&0&0&0&x&x&x&cpb&x&0&1&w&f\\
-\hline
-\end{tabular}
-}
-\caption{Microcode table for inc}
-\label{fig:mem_mem_incr}
-\end{figure}
-The microinstruction I0 to I2 sets up registers A, B, and C for doing the R[rs] x imm[3:0] multiplication. I3 to I7 uses the +? function of the ALU to perform the multiplication. I7 gets the rt register to prepare for the addition. I8 performs the addition to calculate the memory address. It send that address to both mreq\_addr and register B for storage. I9 gets the value returned from the memory and puts it into register A. I10 performs the increment by 1 function and places the result into the WD register. I11 sends the memory address stored in B to the mreq\_req address so that the result in WD can be stored back into memory.
 
 \cleardoublepage
 \section{Multiplier Microarchitecture}
