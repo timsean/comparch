@@ -203,319 +203,125 @@ Page Tables:
 \end{figure}
 
 \cleardoublepage
-\section{Multiplier Microarchitecture}
+\section{Impact of Cache Access Time and Replacement Policy}
+
+\subsection{Miss Rate Analysis}
 \begin{figure}[H]
 \centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}clccccccc@{}}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
+\Xhline{2\arrayrulewidth}
+\textbf{Transaction} & & & & & & & & & & & & \\
+\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{L0} & \textbf{L1} & \textbf{L2} & \textbf{L3} & \textbf{L4} & \textbf{L5} & \textbf{L6} & \textbf{L7}\\
+\Xhline{2\arrayrulewidth}
+0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
+0x030 & 0x0 & 0x3 & m &     &     & 0x0 &     &     &     &     &     \\
+0x07c & 0x0 & 0x7 & m &     &     &     & 0x0 &     &     &     &     \\
+0x070 & 0x0 & 0x7 & h &     &     &     &     &     &     &     & 0x0 \\
+0x100 & 0x2 & 0x0 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x2 & 0x1 & m & 0x2 &     &     &     &     &     &     &     \\
+0x204 & 0x4 & 0x0 & m &     & 0x2 &     &     &     &     &     &     \\
+0x214 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
+0x308 & 0x6 & 0x0 & m &     & 0x4 &     &     &     &     &     &     \\
+0x110 & 0x2 & 0x1 & m & 0x6 &     &     &     &     &     &     &     \\
+0x114 & 0x2 & 0x1 & h &     & 0x2 &     &     &     &     &     &     \\
+0x118 & 0x2 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x11c & 0x2 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x410 & 0x8 & 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x2 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
+0x510 & 0xa & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
+0x110 & 0x2 & 0x1 & m &     & 0xa &     &     &     &     &     &     \\
+0x610 & 0xc & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
+0x110 & 0x2 & 0x1 & m &     & 0xc &     &     &     &     &     &     \\
+0x710 & 0xe & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
+\Xhline{2\arrayrulewidth}
+\multicolumn{12}{l}{\textbf{Number of Misses = 16}}
 \hline
-& & \textbf{Num} & \textbf{Cycle} & \multicolumn{2}{c}{\textbf{Transaction}} & \multicolumn{2}{c}{\textbf{Transaction}} & \textbf{Total} \\
-& & \textbf{Trans} &  \textbf{Time} & \multicolumn{2}{c}{\textbf{Latency}} & \multicolumn{2}{c}{\textbf{Throughput}} & \textbf{Execution Time} \\
-\cline{3-3} 
-\cline{4-4}
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.8}}
+\Xhline{2\arrayrulewidth}
+\end{tabular}
+\caption{Direct-Mapped Cache Contents Over Time}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
+\Xhline{2\arrayrulewidth}
+\textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
 \cline{5-6}
 \cline{7-8}
-\cline{9-9}
-& \textbf{Microarchitecture} & (\#) & ($\tau$) & (cyc) & ($\tau$) & (trans/cyc) & (cyc/trans) & ($\tau$) \\
+\cline{9-10}
+\cline{11-12}
+\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} \\
+\Xhline{2\arrayrulewidth}
+0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
+0x030 & 0x0 & 0x3 & m &     &     &     &     & 0x0 &     &     &     \\
+0x07c & 0x1 & 0x3 & m &     &     &     &     &     &     & 0x0 &     \\
+0x070 & 0x1 & 0x3 & h &     &     &     &     &     &     &     & 0x1 \\
+0x100 & 0x4 & 0x0 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
+0x204 & 0x8 & 0x0 & m &     &     & 0x4 &     &     &     &     &     \\
+0x214 & 0x8 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
+0x308 & 0xc & 0x0 & m &     &     &     & 0x8 &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h & 0xc &     &     &     &     &     &     &     \\
+0x114 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x118 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x11c & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x410 & 0x10& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     &     & 0x10&     &     &     &     \\
+0x510 & 0x14& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     &     & 0x14&     &     &     &     \\
+0x610 & 0x18& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     &     & 0x18&     &     &     &     \\
+0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
+\Xhline{2\arrayrulewidth}
+\multicolumn{12}{l}{\textbf{Number of Misses = 12}}
 \hline
-(a) & 1-Cycle & 60 & 62 & 1 & 62 & 1 & 1 & 3720\\
-\hline
-(b) & Iterative & 60 & 20 & 4 & 60 & 0.25 & 4 & 3600\\
-\hline
-(c) & 2-Cycle Unpiplined & 60 & 32 & 2 & 64 & 0.5 & 2 & 3840\\
-\hline
-(c) & 2-Cycle Pipelined & 60 & 32 & 2 & 64 & 0.98 & 1.02 & 1952\\
-\hline
-(d) & 4-Cycle Unpiplined & 60 & 17 & 4 & 68 & 0.25 & 4 & 4080\\
-\hline
-(d) & 4-Cycle Piplined & 60 & 17 & 4 & 68 & 0.95 & 1.05 & 1071\\
-\hline
-(e) & Var-Lat Pipelined & 60 & 20 & 1-5 & 20-100 & 0.59 & 1.7 & 2040\\
-\hline
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.6}}
+\Xhline{2\arrayrulewidth}
 \end{tabular}
-}
-\caption{Evaluation of Various Multiplier Microarchitectures}
-\label{fig:mult_arch}
+\caption{Two-Way Set-Associative Cache Contents Over Time with LRU Replacement}
 \end{figure}
 
-\subsection{Iterative Microarchitecture}
 \begin{figure}[H]
 \centering
-\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
+\Xhline{2\arrayrulewidth}
+\textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
+\cline{5-6}
+\cline{7-8}
+\cline{9-10}
+\cline{11-12}
+\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} \\
+\Xhline{2\arrayrulewidth}
+0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
+0x030 & 0x0 & 0x3 & m &     &     &     &     & 0x0 &     &     &     \\
+0x07c & 0x1 & 0x3 & m &     &     &     &     &     &     & 0x0 &     \\
+0x070 & 0x1 & 0x3 & h &     &     &     &     &     &     &     & 0x1 \\
+0x100 & 0x4 & 0x0 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
+0x204 & 0x8 & 0x0 & m &     &     & 0x4 &     &     &     &     &     \\
+0x214 & 0x8 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
+0x308 & 0xc & 0x0 & m &     &     &     & 0x8 &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h & 0xc &     &     &     &     &     &     &     \\
+0x114 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x118 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x11c & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
+0x410 & 0x10& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     &     & 0x10&     &     &     &     \\
+0x510 & 0x14& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     & 0x14&     &     &     &     &     \\
+0x610 & 0x18& 0x1 & m &     &     &     &     &     &     &     &     \\
+0x110 & 0x4 & 0x1 & h &     &     &     & 0x18&     &     &     &     \\
+0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
+\Xhline{2\arrayrulewidth}
+\multicolumn{12}{l}{\textbf{Number of Misses = 14}}
 \hline
-& & \multicolumn{16}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & Z & Z & Z & Z & & & & & & & & & & & &\\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & & & Z & Z & Z & Z & & & & & & & &\\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & & & & & & & Z & Z & Z & Z & & & &\\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & & & & & & & Z & Z & Z & Z\\
-\hline
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.7}}
+\Xhline{2\arrayrulewidth}
 \end{tabular}
-\caption{Iterative Multiplier Transaction vs Time Diagram}
-\label{fig:iter_trans_diagram}
+\caption{Two-Way Set-Associative Cache Contents Over Time with FIFO Replacement}
 \end{figure}
 
-\subsection{Two-Cycle Microarchitecture}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cl|c|c|c|c|c|c|c|c}
-\hline
-& & \multicolumn{8}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & & & & & &\\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & X0 & X1 & & & &\\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & & & X0 & X1 & &\\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & X0 & X1\\
-\hline
-\end{tabular}
-\caption{2 Cycle Unpipelined Transaction vs Time Diagram}
-\label{fig:2cycunpipe_trans_diagram}
-\end{figure}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cl|c|c|c|c|c}
-\hline
-& & \multicolumn{5}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5  \\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & & & \\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & X0 & X1 & & \\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & X0 & X1 & \\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & X0 & X1 \\
-\hline
-\end{tabular}
-\caption{2 Cycle Pipelined Transaction vs Time Diagram}
-\label{fig:2cycpipe_trans_diagram}
-\end{figure}
-
-\subsection{Two-Cycle Microarchitecture}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
-\hline
-& & \multicolumn{16}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & X2 & X3 & & & & & & & & & & & &\\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & & & X0 & X1 & X2 & X3 & & & & & & & &\\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & & & & & & & X0 & X1 & X2 & X3 & & & &\\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & & & & & & & X0 & X1 & X2 & X3\\
-\hline
-\end{tabular}
-\caption{4 Cycle Unpipelined Transaction vs Time Diagram}
-\label{fig:4cycunpipe_trans_diagram}
-\end{figure}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cl|c|c|c|c|c|c|c}
-\hline
-& & \multicolumn{5}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & X2 & X3 & & & \\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & X0 & X1 & X2 & X3 & & \\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & X0 & X1 & X2 & X3 & \\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & X0 & X1 & X2 & X3 \\
-\hline
-\end{tabular}
-\caption{4 Cycle Pipelined Transaction vs Time Diagram}
-\label{fig:4cycpipe_trans_diagram}
-\end{figure}
-
-\subsection{Variable-Latency Microarchitecture}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c}
-\hline
-& & \multicolumn{10}{c}{Cycle} \\
-& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
-\hline
-1 & \texttt{mul 0xdeadbeef, 0xf} & Y & X0 & X1 & X2 & X3 & & & & & \\
-\hline
-2 & \texttt{mul 0xf5fe4fbc, 0x7} & & Y & Y & X1 & X2 & X3 & & & & \\
-\hline
-3 & \texttt{mul 0x0a01b044, 0x3} & & & & Y & Y & X2 & X3 & & & \\
-\hline
-4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & Y & X0 & X1 & X2 & X3 \\
-\hline
-\end{tabular}
-\caption{Variable-Latency Microarchitecture Transaction vs Time Diagram}
-\label{fig:varlat_trans_diagram}
-\end{figure}
-
-\subsection{Comparison of Microarchitectures}
-The 4 cycle pipelined architecture has the highest performance. It provided the best transaction throughput and therefore lowest total execution time. The 4 cycle pipelined multiplier allowed us to execute 4 multiply instructions at the same time provided that there are no data dependencies between them. For this specific type of mlutiplier (32 bit operand by 4 bit operand), anything more than a 4 cycle pipeline will not provide any benefits. The best performance is achieved when the number of cycles in the pipeline is equal to the number of bits in the second operand (ie. a 32 bit by 16 bit multiplier will have a 16-cycle pipeline). The variable latency pipelined multiplier can provide the same transaction throughput as the 4-cycle pipeline and better transaction latency, but only for certain data sets and instruction ordering (ie. a continuous stream of data that only needs the lowest 2 bits). Due to the necessity to stall in the Y stage, the variable latency multiplier resulted in a worse throughput and latency when compared to the 4-cycle pipeline in our tests. With a larger second operand (of n bits) and a more random data set, the variable latency multiplier will have roughly the same transaction throughput as the n-cycle pipeline, but a slightly better transaction latency.
-
-In terms of area, the fixed latency multiplier will have the smallest area while the variable latency pipelined multiplier will have the largest area. The 4-cycle pipelined multiplier, with the second largest area, provided the best performance in this test due to the uniqueness of this data set. I believe that the area difference between these different architectures is not significant because they only involve the addition of registers and muxes, while the amount of combinational logic for arithmetic purposes remained roughly the same (same number of 32-bit adders and shifters). 
-
-While the 4 cycle pipelined multiplier provided the best throughput, it also had one of the worst latency. Therefore, if there are data dependencies between a succession of transactions, a fixed latency or variable latency pipelined multiplier will have provided better performance due to their lower transaction latency. In the case of the variable latency multiplier, the performance will vary depending on the data set as stated before. 
-
-Overall, for a 32-bit by 4-bit multiplier, the 4 cycle pipelined multiplier will provide the best performance in general. With good software scheduling, we can minimize the penalty for data dependencies and therefore maintain a max throughput. However, if we wish to implement a larger multiplier such as a 32-bit by 16-bit multiplier, we should choose the variable-latency pipelined multiplier instead. With the larger operand, there are more upper bits that we can potentially skip, therefore the performance benefits of skipping them are also greater, especially when there are data dependencies. In that case, it is likely to outperform a 16-cycle pipelined multiplier.
-
-\cleardoublepage
-\section{Two-Cycle Pipelined Integer ALU and Multiplier}
-\subsection{Part 4.A Control and Data Hazard Latencies}
-Jump Resolution Latency = 2\\
-Branch Resolution Latency = 4\\
-ALU-use Delay Latency = 2\\
-Load-use Delay Latency = 3\\
-
-\subsection{Resolving Data Hazards with Software Scheduling}
-\begin{lstlisting}
-        bne r1, r0, done
-        lw r5, 0(r2)
-        lw r6, 0(r3)
-        addiu r8, r4, 4
-        nop
-        addu r7, r5, r6
-        nop
-        sw r7, 0(r8)
-        ...
-done:   addiu r10, r9, 1
-\end{lstlisting}
-By swapping the addu and addiu instructions, we can avoid 1 nop for the dependence between the addu and the lw instructions. Regardless of how the addiu and addu instructions are scheduled, there will always be a nop right before the sw instruction due to the dependence.
-\begin{figure}[H]
-\centering
-\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c|c|c|c}
-\hline
-& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{13}{c}{Cycle} \\
-& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\
-\hline
-1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & & & &\\
-\hline
-2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & & & &\\
-\hline
-3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & X0 & X1 & M & W & & & & &\\
-\hline
-4 & \texttt{addiu} & \texttt{r8, r4, 4} & & & & F & D & X0 & X1 & M & W & & & &\\
-\hline
-5 & \texttt{nop} & & & & & & F & D & X0 & X1 & M & W & & &\\
-\hline
-6 & \texttt{addu} & \texttt{r7, r5, r6} & & & & & & F & D & X0 & X1 & M & W & &\\
-\hline
-7 & \texttt{nop} & & & & & & & & F & D & X0 & X1 & M & W &\\
-\hline
-8 & \texttt{sw} & \texttt{r7, 0(r8)} & & & & & & & & F & D & X0 & X1 & M & W \\
-\hline
-\end{tabular}
-\caption{Software Scheduling Pipeline}
-\label{fig:sixstage_softwaresch_pipe_diagram}
-\end{figure}
-Instruction 6 (addu)'s D stage depends on instruction 2 (lw)'s M stage and instruction 3 (lw)'s M stage.\\
-Instruction 7 (sw)'s D stage depends on instruction 4 (addiu)'s X1 stage and instruction 6 (addu)'s X1 stage.\\
-
-\subsection{Resolving Data Hazards with Stalling}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
-\hline
-& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{14}{c}{Cycle} \\
-& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14\\
-\hline
-1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & & & & &\\
-\hline
-2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & & & & &\\
-\hline
-3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & X0 & X1 & M & W & & & & & &\\
-\hline
-4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & D & D & D & X0 & X1 & M & W & & &\\
-\hline
-5 & \texttt{addiu} & \texttt{r8, r4, 4} & & & & & F & F & F & D & X0 & X1 & M & W & &\\
-\hline
-6 & \texttt{sw} & \texttt{r7, 0(r8)} & & & & & & & & F & F & D & X0 & X1 & M & W \\
-\hline
-\end{tabular}
-\caption{Hardware Stalling Pipeline}
-\label{fig:sixstage_hardwarestall_pipe_diagram}
-\end{figure}
-Instruction 6 (addu)'s D stage depends on instruction 2 (lw)'s M stage and instruction 3 (lw)'s M stage.\\
-Instruction 7 (sw)'s D stage depends on instruction 4 (addiu)'s X1 stage and instruction 6 (addu)'s X1 stage.\\
-
-\subsection{New Stall Signal}
-\begin{lstlisting}
-ostall_load_use_X_rs_D
-  =    val_D && rs_en_D && (val_X0 || val_X1) && (rf_wen_X0 || rf_wen_X1)
-    && ((inst_rs_D == rf_waddr_X0) || (inst_rs_D == rf_waddr_X1)) 
-    && ((rf_waddr_X0 != 0) || (rf_waddr_X1 != 0))
-    && ((op_X0 == LW) || (op_X1 == LW))
-ostall_load_use_X_rt_D
-  =    val_D && rt_en_D && (val_X0 || val_X1) && (rf_wen_X0 || rf_wen_X1)
-    && ((inst_rt_D == rf_waddr_X0) || (inst_rt_D == rf_waddr_X1)) 
-    && ((rf_waddr_X0 != 0) || (rf_waddr_X1 != 0))
-    && ((op_X0 == LW) || (op_X1 == LW))
-ostall_alu_use_X_rs_D
-  =    val_D && rs_en_D && val_X0 && rf_wen_X0
-    && (inst_rs_D == rf_waddr_X0) 
-    && (rf_waddr_X0 != 0)
-ostall_alu_use_X_rt_D
-  =    val_D && rt_en_D && val_X0 && rf_wen_X0
-    && (inst_rt_D == rf_waddr_X0) 
-    && (rf_waddr_X0 != 0)
-stall_D
-  =    val_D && !squash_D
-    && ((ostall_load_use_X_rs_D || ostall_load_use_X_rt_D) || 
-       (ostall_alu_use_X_rs_D || ostall_alu_use_X_rt_D))
-\end{lstlisting}
-
-\subsection{Resolving Control Hazards with Scheduling and Speculation}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c}
-\hline
-& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{10}{c}{Cycle} \\
-& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
-\hline
-1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & \\
-\hline
-2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & - & - & - & & & \\
-\hline
-3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & - & - & - & - & & \\
-\hline
-4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & - & - & - & - & - & \\
-\hline
-5 & \texttt{addiu} & \texttt{r10, r9, 1} & & & & & F & D & X0 & X1 & M & W \\
-\hline
-\end{tabular}
-\caption{Squashing Pipeline}
-\label{fig:squashing_diagram}
-\end{figure}
-\begin{figure}[H]
-\centering
-\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c}
-\hline
-& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{10}{c}{Cycle} \\
-& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
-\hline
-1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & \\
-\hline
-2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & \\
-\hline
-3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & - & - & - & - & & \\
-\hline
-4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & - & - & - & - & - & \\
-\hline
-5 & \texttt{addiu} & \texttt{r10, r9, 1} & & & & & F & D & X0 & X1 & M & W \\
-\hline
-\end{tabular}
-\caption{Branch Delay Slot Pipeline}
-\label{fig:branch_delay_diagram}
-\end{figure}
+\subsection{}
 
 \end{document}
