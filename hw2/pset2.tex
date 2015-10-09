@@ -48,94 +48,59 @@
 
 \begin{document}
 \maketitle
+\newcommand*{\tableindent}{\hspace*{0.3cm}}%
 
 \section{PARCv1 Instruction Cache} 
 \subsection{Categorizing Cache Misses}
 \begin{figure}[H]
 \centering
-\begin{tabular}{rcll}
+\begin{tabular}{clcc}
 \hline
-\textbf{Contents of Stack}  &  \textbf{Access Stack}\\
-\textbf{on First Iteration} &  \textbf{Memory?} & \textbf{Label} & \textbf{Instruction} \\
+\textbf{Addr} &\textbf{Instruction}& \textbf{Iteration 1} & \textbf{Iteration 2}\\
 \hline
-aptr; size & & & goto L1\\
-aptr; size & & loop: & swap\\
-size; aptr & Y & & dup\\
-size; aptr; aptr & Y & & dup\\
-size; aptr; aptr; aptr  & & & pushm\\
-size; aptr; aptr; mem & Y & & pushi(1)\\
-size; aptr; aptr; mem; 1 & Y & & add\\
-size; aptr; aptr; (mem+1) & Y & & popm\\
-size; aptr & Y & & pushi(4)\\
-size; aptr; 4 & Y & & add\\
-size; (aptr+4) & & & swap\\
-(aptr+4); size; & Y & & pushi(-1)\\
-(aptr+4); size; -1 & Y & & add\\
-aptr; size & Y & L1: & dup\\
-aptr; size; size & Y & loop: & bgtz loop\\
+& loop: & & \\
+0x108 & \tableindent addiu r1, r1, -1 & compulsory & \\
+0x10c & \tableindent addiu r2, r2, -1 & 		   & \\
+0x110 & \tableindent j foo			  & compulsory & conflict \\
+	  & ...							  & 		   & \\
+	  & foo:						  & 		   & \\
+0x218 & \tableindent addiu r6, r6, 1  & compulsory & conflict \\
+0x21c & \tableindent bne r1, r0, loop & 	       & \\
 \hline
 \end{tabular}
-\caption{array\_increment loop in stack based ISA
-\\The final stack is (aptr+4); (size-1) after add on 3rd to last row}
+\caption{Cache Miss Type}
 \end{figure}
 
-\subsection{MIPS32 RISC ISA}
-\begin{lstlisting}
-        sll r5, r5, 2     // Multiply the size by 4 due to byte addressed memory
-        jmp L1            // Jump to L1 to do the initial size != 0 check.
-        addi r12, r4, r5  // Calculate the absolute end location of the array in memory
-loop:   addi r13, r13, 1  // Increment r13 by 1
-        sw r13, 0(r14)    // Store r13 back into the current spot in array
-        addi r4, r4, 4    // Increment the counter r14 by 4 (memory is byte addressed)
-L1:     bne r12, r4, loop // If r12 != r4, then go to "loop" and continue through the array
-        lw r13, 0(r4)     // Load the current item in the array into r13
-\end{lstlisting}
-There are two types of optimization in the code. The first takes advantage of the branch delay slots after the jump and branch instructions. The second restructures the looping mechanism to reduce the number of calculations and register usage. The addi instruction on line 3 takes advantage of the branch delay slot after the jump instruction on line 2. This is possible because the addi instruction needs to be executed regardless of the jump. The load word instruction on line 8 also takes advantage of the branch delay slot right after the branch instruction on line 7. The load word instruction is used for retrieving one element from the array and place it into the temporary register r13. Normally, this instruction is placed at the beginning of the loop, but because r13 is a temporary register, we can also load into r13 without any consequences (regardless whether the branch is taken or not). During normal looping (when bne is branching), the load word instruction saves a cycle each. When the loop is completed, that instruction will load an element beyond the scope of the array into r13. In this specific situation, this out of bounds load should not cause any problems, because r13 is a temporary register and we will not be using it after the loop has completed. \\
-My MIPS32 program contains 4*8 = 32 bytes (8 instructions with instruction taking up 4 bytes).\\
-A total of 4*(3+2+10*5) = 220 bytes of instructions need to be fetched if size is 10. \\
-Assuming 32-bit data values, 4*10 + 4 = 44 bytes of data need to be loaded from memory. 4*10 = 40 bytes of data need to be stored to memory.
+\subsection{Average Memory Access Latency}
+Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.The average memory access latency is:AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)AMAL = 1 + (0.4 $\times$ 5)AMAL = 3 cyclesThe AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
 
-\subsection{Simple Stack-Based ISA}
-\begin{figure}[H]
-\centering
-\begin{tabular}{rcll}
-\hline
-\textbf{Contents of Stack}  &  \textbf{Access Stack}\\
-\textbf{on First Iteration} &  \textbf{Memory?} & \textbf{Label} & \textbf{Instruction} \\
-\hline
-aptr; size & & & goto L1\\
-aptr; size & & loop: & swap\\
-size; aptr & Y & & dup\\
-size; aptr; aptr & Y & & dup\\
-size; aptr; aptr; aptr  & & & pushm\\
-size; aptr; aptr; mem & Y & & pushi(1)\\
-size; aptr; aptr; mem; 1 & Y & & add\\
-size; aptr; aptr; (mem+1) & Y & & popm\\
-size; aptr & Y & & pushi(4)\\
-size; aptr; 4 & Y & & add\\
-size; (aptr+4) & & & swap\\
-(aptr+4); size; & Y & & pushi(-1)\\
-(aptr+4); size; -1 & Y & & add\\
-aptr; size & Y & L1: & dup\\
-aptr; size; size & Y & loop: & bgtz loop\\
-\hline
-\end{tabular}
-\caption{array\_increment loop in stack based ISA
-\\The final stack is (aptr+4); (size-1) after add on 3rd to last row}
-\label{fig:stack_isa}
-\end{figure}
-The stack based ISA program contains 5+1+5+1+1+1+1+2+1+1+2+1+1+2+1=26 bytes. \\
-If size is 10, a total of 5+1+5+10*(1+1+1+1+2+1+1+2+1+1+2+1+1+5)=221 bytes of instructions need to be fetched. \\
-Assuming 32-bit data values, a total of 4*10=40 bytes of data need to be both fetched from and stored to data memory. \\
-11 instructions will result in some kind of access to the special stack memory. If size is 10, the special stack memory needs to be accessed a total of 2+10*11=112 times. If the microarchitecture implemented eight 32-bit registers for the stack, this program will never need to access the special stack memory. This is because the largest the stack will be during execution is 5 elements. 
-
-\subsection{Comparison of ISAs}
-The x86 ISA should give the smallest static code size and fewest dynamically fetched instruction bytes compared to the MIPS32 and stack based ISA. This is mainly due to it being a CISC and having a variable instruction length. In comparison to the MIPS32, which has all 4-byte instructions, the x86 ISA can reduce both the static and dynamic code size with instructions that are generally less than 4 bytes. In comparison to both the MIPS32 and the stack based ISA, x86 also uses a complex instruction set (CISC), which purpose is to allow a program to be written with the fewest lines of assembly as possible. While this increases the complexity of the microarchitecture and makes the ISA harder to work with, it does allow reduce the number of instructions is needed for a program. As already shown by the array\_increment program, x86 uses the fewest instructions. While the stack based ISA also uses variable length instructions, the stack design is not well suited for most programs. The ability to only access the top of the stack requires extensive use of the swap instruction, which decreases the benefits of the variable length instructions. 
+\subsection{Set-Associativity}
+The cache performance will increase significantly, because there will no longer be conflict misses during the loop. With this new cache microarchitecture, only compulsory misses will be left. 
 
 \cleardoublepage
-\section{Microcoded PARCv1 Processor}
+\section{Page-Based Memory Translation}
 
-\subsection{Implementing Conditional Move}
+\section{Two-Level Page Tables}
+The 16-bit virtual address is used as the following:
+\begin{figure}[H]
+\centering
+\begin{tabular}{clcc}
+\hline
+\textbf{Addr} &\textbf{Instruction}& \textbf{Iteration 1} & \textbf{Iteration 2}\\
+\hline
+& loop: & & \\
+0x108 & \tableindent addiu r1, r1, -1 & compulsory & \\
+0x10c & \tableindent addiu r2, r2, -1 & 		   & \\
+0x110 & \tableindent j foo			  & compulsory & conflict \\
+	  & ...							  & 		   & \\
+	  & foo:						  & 		   & \\
+0x218 & \tableindent addiu r6, r6, 1  & compulsory & conflict \\
+0x21c & \tableindent bne r1, r0, loop & 	       & \\
+\hline
+\end{tabular}
+\caption{Cache Miss Type}
+\end{figure}
+
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
