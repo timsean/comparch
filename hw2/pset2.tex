@@ -1,0 +1,540 @@
+\documentclass[10pt]{article}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{svg}
+\usepackage[T1]{fontenc}
+\usepackage[titletoc]{appendix}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{blindtext}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage{courier}
+\usepackage{fancyhdr}
+\usepackage{makecell}
+\pagestyle{fancy}
+\lhead{Tim Yao - ty252}
+
+\renewcommand{\thesubsection}{\thesection.\alph{subsection}}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Verilog,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  keepspaces=true,
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=false,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\title{ECE 4750 PSET 2}
+\author{Tim Yao (ty252)}
+\date{Oct 10, 2015}
+
+\begin{document}
+\maketitle
+
+\section{PARCv1 Instruction Cache} 
+\subsection{Categorizing Cache Misses}
+\begin{figure}[H]
+\centering
+\begin{tabular}{rcll}
+\hline
+\textbf{Contents of Stack}  &  \textbf{Access Stack}\\
+\textbf{on First Iteration} &  \textbf{Memory?} & \textbf{Label} & \textbf{Instruction} \\
+\hline
+aptr; size & & & goto L1\\
+aptr; size & & loop: & swap\\
+size; aptr & Y & & dup\\
+size; aptr; aptr & Y & & dup\\
+size; aptr; aptr; aptr  & & & pushm\\
+size; aptr; aptr; mem & Y & & pushi(1)\\
+size; aptr; aptr; mem; 1 & Y & & add\\
+size; aptr; aptr; (mem+1) & Y & & popm\\
+size; aptr & Y & & pushi(4)\\
+size; aptr; 4 & Y & & add\\
+size; (aptr+4) & & & swap\\
+(aptr+4); size; & Y & & pushi(-1)\\
+(aptr+4); size; -1 & Y & & add\\
+aptr; size & Y & L1: & dup\\
+aptr; size; size & Y & loop: & bgtz loop\\
+\hline
+\end{tabular}
+\caption{array\_increment loop in stack based ISA
+\\The final stack is (aptr+4); (size-1) after add on 3rd to last row}
+\end{figure}
+
+\subsection{MIPS32 RISC ISA}
+\begin{lstlisting}
+        sll r5, r5, 2     // Multiply the size by 4 due to byte addressed memory
+        jmp L1            // Jump to L1 to do the initial size != 0 check.
+        addi r12, r4, r5  // Calculate the absolute end location of the array in memory
+loop:   addi r13, r13, 1  // Increment r13 by 1
+        sw r13, 0(r14)    // Store r13 back into the current spot in array
+        addi r4, r4, 4    // Increment the counter r14 by 4 (memory is byte addressed)
+L1:     bne r12, r4, loop // If r12 != r4, then go to "loop" and continue through the array
+        lw r13, 0(r4)     // Load the current item in the array into r13
+\end{lstlisting}
+There are two types of optimization in the code. The first takes advantage of the branch delay slots after the jump and branch instructions. The second restructures the looping mechanism to reduce the number of calculations and register usage. The addi instruction on line 3 takes advantage of the branch delay slot after the jump instruction on line 2. This is possible because the addi instruction needs to be executed regardless of the jump. The load word instruction on line 8 also takes advantage of the branch delay slot right after the branch instruction on line 7. The load word instruction is used for retrieving one element from the array and place it into the temporary register r13. Normally, this instruction is placed at the beginning of the loop, but because r13 is a temporary register, we can also load into r13 without any consequences (regardless whether the branch is taken or not). During normal looping (when bne is branching), the load word instruction saves a cycle each. When the loop is completed, that instruction will load an element beyond the scope of the array into r13. In this specific situation, this out of bounds load should not cause any problems, because r13 is a temporary register and we will not be using it after the loop has completed. \\
+My MIPS32 program contains 4*8 = 32 bytes (8 instructions with instruction taking up 4 bytes).\\
+A total of 4*(3+2+10*5) = 220 bytes of instructions need to be fetched if size is 10. \\
+Assuming 32-bit data values, 4*10 + 4 = 44 bytes of data need to be loaded from memory. 4*10 = 40 bytes of data need to be stored to memory.
+
+\subsection{Simple Stack-Based ISA}
+\begin{figure}[H]
+\centering
+\begin{tabular}{rcll}
+\hline
+\textbf{Contents of Stack}  &  \textbf{Access Stack}\\
+\textbf{on First Iteration} &  \textbf{Memory?} & \textbf{Label} & \textbf{Instruction} \\
+\hline
+aptr; size & & & goto L1\\
+aptr; size & & loop: & swap\\
+size; aptr & Y & & dup\\
+size; aptr; aptr & Y & & dup\\
+size; aptr; aptr; aptr  & & & pushm\\
+size; aptr; aptr; mem & Y & & pushi(1)\\
+size; aptr; aptr; mem; 1 & Y & & add\\
+size; aptr; aptr; (mem+1) & Y & & popm\\
+size; aptr & Y & & pushi(4)\\
+size; aptr; 4 & Y & & add\\
+size; (aptr+4) & & & swap\\
+(aptr+4); size; & Y & & pushi(-1)\\
+(aptr+4); size; -1 & Y & & add\\
+aptr; size & Y & L1: & dup\\
+aptr; size; size & Y & loop: & bgtz loop\\
+\hline
+\end{tabular}
+\caption{array\_increment loop in stack based ISA
+\\The final stack is (aptr+4); (size-1) after add on 3rd to last row}
+\label{fig:stack_isa}
+\end{figure}
+The stack based ISA program contains 5+1+5+1+1+1+1+2+1+1+2+1+1+2+1=26 bytes. \\
+If size is 10, a total of 5+1+5+10*(1+1+1+1+2+1+1+2+1+1+2+1+1+5)=221 bytes of instructions need to be fetched. \\
+Assuming 32-bit data values, a total of 4*10=40 bytes of data need to be both fetched from and stored to data memory. \\
+11 instructions will result in some kind of access to the special stack memory. If size is 10, the special stack memory needs to be accessed a total of 2+10*11=112 times. If the microarchitecture implemented eight 32-bit registers for the stack, this program will never need to access the special stack memory. This is because the largest the stack will be during execution is 5 elements. 
+
+\subsection{Comparison of ISAs}
+The x86 ISA should give the smallest static code size and fewest dynamically fetched instruction bytes compared to the MIPS32 and stack based ISA. This is mainly due to it being a CISC and having a variable instruction length. In comparison to the MIPS32, which has all 4-byte instructions, the x86 ISA can reduce both the static and dynamic code size with instructions that are generally less than 4 bytes. In comparison to both the MIPS32 and the stack based ISA, x86 also uses a complex instruction set (CISC), which purpose is to allow a program to be written with the fewest lines of assembly as possible. While this increases the complexity of the microarchitecture and makes the ISA harder to work with, it does allow reduce the number of instructions is needed for a program. As already shown by the array\_increment program, x86 uses the fewest instructions. While the stack based ISA also uses variable length instructions, the stack design is not well suited for most programs. The ability to only access the top of the stack requires extensive use of the swap instruction, which decreases the benefits of the variable length instructions. 
+
+\cleardoublepage
+\section{Microcoded PARCv1 Processor}
+
+\subsection{Implementing Conditional Move}
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{\extracolsep{3pt}}llcccccccccccccccccccc@{}}
+\hline
+& & \multicolumn{5}{c}{\textbf{Bus Enables}}
+& \multicolumn{6}{c}{\textbf{Register Enables}}
+& \multicolumn{2}{c}{\textbf{Mux}}
+& \multicolumn{2}{c}{\textbf{Func}}
+& \multicolumn{2}{c}{\textbf{RF}}
+& \multicolumn{2}{c}{\textbf{mreq}}\\
+\cline{3-7} 
+\cline{8-13}
+\cline{14-15}
+\cline{16-17}
+\cline{18-19}
+\cline{20-21} 
+\textbf{State} & \textbf{Pseudo Control Sigs} & \textbf{pc} & \textbf{iau} & \textbf{alu} & \textbf{rf} & \textbf{rd} & \textbf{pc} & \textbf{ir} & \textbf{a} & \textbf{b} & \textbf{c} & \textbf{wd} & \textbf{b} & \textbf{c} & \textbf{iau} & \textbf{alu} & \textbf{sel} & \textbf{wen} & \textbf{val} & \textbf{op} & \textbf{next} \\
+\hline
+M0: & A <- RF[rt] &0&0&0&1&0&0&0&1&0&0&0&x&x&x&x&rt&0&0&x&n \\
+\hline
+M1: & B <- RF[r0] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&r0&0&0&x&n\\
+\hline
+M2: & A<-RF[rs];goto F0 if A=B &0&0&1&1&0&0&0&1&0&0&0&x&x&x&cmp&rs&0&0&x&b\\
+\hline
+M3: & RF[rd] <- A &0&0&1&1&0&0&0&0&0&0&0&x&x&x&cpa&rd&1&0&x&f\\
+\hline
+\end{tabular}
+}
+\caption{Microcode table for movn}
+\label{fig:conditional_move}
+\end{figure}
+M0 and M1 puts the values of rt and r0 into registers A and B respectively for comparison by the ALU. This is to check and see if rt is 0. M2 uses the cmp function of the ALU to check if rt is 0 and goto F0 (skip to next instruction) if rt is 0 by setting the next state to b. If rt is not 0, then the FSM will continue to execute states M3 and M4. M3 gets the value of rs and temporarily puts it in register A. M4 moves the value in register A to rd by utilizing the cpa (copy A to output) function of the ALU. This completes the microcode program for movn.
+
+\subsection{Implementing Memory-Memory Increment Instruction}
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{\extracolsep{3pt}}llcccccccccccccccccccc@{}}
+\hline
+& & \multicolumn{5}{c}{\textbf{Bus Enables}}
+& \multicolumn{6}{c}{\textbf{Register Enables}}
+& \multicolumn{2}{c}{\textbf{Mux}}
+& \multicolumn{2}{c}{\textbf{Func}}
+& \multicolumn{2}{c}{\textbf{RF}}
+& \multicolumn{2}{c}{\textbf{mreq}}\\
+\cline{3-7} 
+\cline{8-13}
+\cline{14-15}
+\cline{16-17}
+\cline{18-19}
+\cline{20-21} 
+\textbf{State} & \textbf{Pseudo Control Sigs} & \textbf{pc} & \textbf{iau} & \textbf{alu} & \textbf{rf} & \textbf{rd} & \textbf{pc} & \textbf{ir} & \textbf{a} & \textbf{b} & \textbf{c} & \textbf{wd} & \textbf{b} & \textbf{c} & \textbf{iau} & \textbf{alu} & \textbf{sel} & \textbf{wen} & \textbf{val} & \textbf{op} & \textbf{next} \\
+\hline
+I0: & C <- si(imm) &0&0&0&0&0&0&1&0&0&1&0&x&b&si&x&x&0&0&x&n \\
+\hline
+I1: & B <- RF[rs] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&rs&0&0&x&n\\
+\hline
+I2: & A <- RF[r0] &0&0&0&1&0&0&0&1&0&0&0&x&x&x&x&r0&0&0&x&n\\
+\hline
+I3: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
+\hline
+I4: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
+\hline
+I5: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&1&1&0&s&s&x&+?&x&0&0&x&n\\
+\hline
+I6: & C[0]? A+B:copy A &0&0&1&0&0&0&0&1&0&0&0&x&x&x&+?&x&0&0&x&n\\
+\hline
+I7: & B <- RF[rt] &0&0&0&1&0&0&0&0&1&0&0&b&x&x&x&rt&0&0&x&n\\
+\hline
+I8: & mreq\_addr<-B<-A+B &0&0&1&0&0&0&0&0&1&0&0&b&x&x&+&x&0&1&r&n\\
+\hline
+I9: & A <- RD &0&0&0&0&1&0&0&1&0&0&0&x&x&x&x&x&0&0&x&n\\
+\hline
+I10: & WD <- A+1 &0&0&1&0&0&0&0&0&0&0&1&x&x&x&+1&x&0&0&x&n\\
+\hline
+I11: & mreq\_addr <- B &0&0&1&0&0&0&0&0&0&0&0&x&x&x&cpb&x&0&1&w&f\\
+\hline
+\end{tabular}
+}
+\caption{Microcode table for inc}
+\label{fig:mem_mem_incr}
+\end{figure}
+The microinstruction I0 to I2 sets up registers A, B, and C for doing the R[rs] x imm[3:0] multiplication. I3 to I7 uses the +? function of the ALU to perform the multiplication. I7 gets the rt register to prepare for the addition. I8 performs the addition to calculate the memory address. It send that address to both mreq\_addr and register B for storage. I9 gets the value returned from the memory and puts it into register A. I10 performs the increment by 1 function and places the result into the WD register. I11 sends the memory address stored in B to the mreq\_req address so that the result in WD can be stored back into memory.
+
+\cleardoublepage
+\section{Multiplier Microarchitecture}
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{\extracolsep{3pt}}clccccccc@{}}
+\hline
+& & \textbf{Num} & \textbf{Cycle} & \multicolumn{2}{c}{\textbf{Transaction}} & \multicolumn{2}{c}{\textbf{Transaction}} & \textbf{Total} \\
+& & \textbf{Trans} &  \textbf{Time} & \multicolumn{2}{c}{\textbf{Latency}} & \multicolumn{2}{c}{\textbf{Throughput}} & \textbf{Execution Time} \\
+\cline{3-3} 
+\cline{4-4}
+\cline{5-6}
+\cline{7-8}
+\cline{9-9}
+& \textbf{Microarchitecture} & (\#) & ($\tau$) & (cyc) & ($\tau$) & (trans/cyc) & (cyc/trans) & ($\tau$) \\
+\hline
+(a) & 1-Cycle & 60 & 62 & 1 & 62 & 1 & 1 & 3720\\
+\hline
+(b) & Iterative & 60 & 20 & 4 & 60 & 0.25 & 4 & 3600\\
+\hline
+(c) & 2-Cycle Unpiplined & 60 & 32 & 2 & 64 & 0.5 & 2 & 3840\\
+\hline
+(c) & 2-Cycle Pipelined & 60 & 32 & 2 & 64 & 0.98 & 1.02 & 1952\\
+\hline
+(d) & 4-Cycle Unpiplined & 60 & 17 & 4 & 68 & 0.25 & 4 & 4080\\
+\hline
+(d) & 4-Cycle Piplined & 60 & 17 & 4 & 68 & 0.95 & 1.05 & 1071\\
+\hline
+(e) & Var-Lat Pipelined & 60 & 20 & 1-5 & 20-100 & 0.59 & 1.7 & 2040\\
+\hline
+\end{tabular}
+}
+\caption{Evaluation of Various Multiplier Microarchitectures}
+\label{fig:mult_arch}
+\end{figure}
+
+\subsection{Iterative Microarchitecture}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+& & \multicolumn{16}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & Z & Z & Z & Z & & & & & & & & & & & &\\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & & & Z & Z & Z & Z & & & & & & & &\\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & & & & & & & Z & Z & Z & Z & & & &\\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & & & & & & & Z & Z & Z & Z\\
+\hline
+\end{tabular}
+\caption{Iterative Multiplier Transaction vs Time Diagram}
+\label{fig:iter_trans_diagram}
+\end{figure}
+
+\subsection{Two-Cycle Microarchitecture}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c|c|c|c}
+\hline
+& & \multicolumn{8}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & & & & & &\\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & X0 & X1 & & & &\\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & & & X0 & X1 & &\\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & X0 & X1\\
+\hline
+\end{tabular}
+\caption{2 Cycle Unpipelined Transaction vs Time Diagram}
+\label{fig:2cycunpipe_trans_diagram}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c}
+\hline
+& & \multicolumn{5}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5  \\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & & & \\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & X0 & X1 & & \\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & X0 & X1 & \\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & X0 & X1 \\
+\hline
+\end{tabular}
+\caption{2 Cycle Pipelined Transaction vs Time Diagram}
+\label{fig:2cycpipe_trans_diagram}
+\end{figure}
+
+\subsection{Two-Cycle Microarchitecture}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+& & \multicolumn{16}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & X2 & X3 & & & & & & & & & & & &\\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & & & & X0 & X1 & X2 & X3 & & & & & & & &\\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & & & & & & & X0 & X1 & X2 & X3 & & & &\\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & & & & & & & & X0 & X1 & X2 & X3\\
+\hline
+\end{tabular}
+\caption{4 Cycle Unpipelined Transaction vs Time Diagram}
+\label{fig:4cycunpipe_trans_diagram}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c|c|c}
+\hline
+& & \multicolumn{5}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & X0 & X1 & X2 & X3 & & & \\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & X0 & X1 & X2 & X3 & & \\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & X0 & X1 & X2 & X3 & \\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & X0 & X1 & X2 & X3 \\
+\hline
+\end{tabular}
+\caption{4 Cycle Pipelined Transaction vs Time Diagram}
+\label{fig:4cycpipe_trans_diagram}
+\end{figure}
+
+\subsection{Variable-Latency Microarchitecture}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cl|c|c|c|c|c|c|c|c|c|c}
+\hline
+& & \multicolumn{10}{c}{Cycle} \\
+& \textbf{Transaction} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+\hline
+1 & \texttt{mul 0xdeadbeef, 0xf} & Y & X0 & X1 & X2 & X3 & & & & & \\
+\hline
+2 & \texttt{mul 0xf5fe4fbc, 0x7} & & Y & Y & X1 & X2 & X3 & & & & \\
+\hline
+3 & \texttt{mul 0x0a01b044, 0x3} & & & & Y & Y & X2 & X3 & & & \\
+\hline
+4 & \texttt{mul 0xdeadbeef, 0xf} & & & & & & Y & X0 & X1 & X2 & X3 \\
+\hline
+\end{tabular}
+\caption{Variable-Latency Microarchitecture Transaction vs Time Diagram}
+\label{fig:varlat_trans_diagram}
+\end{figure}
+
+\subsection{Comparison of Microarchitectures}
+The 4 cycle pipelined architecture has the highest performance. It provided the best transaction throughput and therefore lowest total execution time. The 4 cycle pipelined multiplier allowed us to execute 4 multiply instructions at the same time provided that there are no data dependencies between them. For this specific type of mlutiplier (32 bit operand by 4 bit operand), anything more than a 4 cycle pipeline will not provide any benefits. The best performance is achieved when the number of cycles in the pipeline is equal to the number of bits in the second operand (ie. a 32 bit by 16 bit multiplier will have a 16-cycle pipeline). The variable latency pipelined multiplier can provide the same transaction throughput as the 4-cycle pipeline and better transaction latency, but only for certain data sets and instruction ordering (ie. a continuous stream of data that only needs the lowest 2 bits). Due to the necessity to stall in the Y stage, the variable latency multiplier resulted in a worse throughput and latency when compared to the 4-cycle pipeline in our tests. With a larger second operand (of n bits) and a more random data set, the variable latency multiplier will have roughly the same transaction throughput as the n-cycle pipeline, but a slightly better transaction latency.
+
+In terms of area, the fixed latency multiplier will have the smallest area while the variable latency pipelined multiplier will have the largest area. The 4-cycle pipelined multiplier, with the second largest area, provided the best performance in this test due to the uniqueness of this data set. I believe that the area difference between these different architectures is not significant because they only involve the addition of registers and muxes, while the amount of combinational logic for arithmetic purposes remained roughly the same (same number of 32-bit adders and shifters). 
+
+While the 4 cycle pipelined multiplier provided the best throughput, it also had one of the worst latency. Therefore, if there are data dependencies between a succession of transactions, a fixed latency or variable latency pipelined multiplier will have provided better performance due to their lower transaction latency. In the case of the variable latency multiplier, the performance will vary depending on the data set as stated before. 
+
+Overall, for a 32-bit by 4-bit multiplier, the 4 cycle pipelined multiplier will provide the best performance in general. With good software scheduling, we can minimize the penalty for data dependencies and therefore maintain a max throughput. However, if we wish to implement a larger multiplier such as a 32-bit by 16-bit multiplier, we should choose the variable-latency pipelined multiplier instead. With the larger operand, there are more upper bits that we can potentially skip, therefore the performance benefits of skipping them are also greater, especially when there are data dependencies. In that case, it is likely to outperform a 16-cycle pipelined multiplier.
+
+\cleardoublepage
+\section{Two-Cycle Pipelined Integer ALU and Multiplier}
+\subsection{Part 4.A Control and Data Hazard Latencies}
+Jump Resolution Latency = 2\\
+Branch Resolution Latency = 4\\
+ALU-use Delay Latency = 2\\
+Load-use Delay Latency = 3\\
+
+\subsection{Resolving Data Hazards with Software Scheduling}
+\begin{lstlisting}
+        bne r1, r0, done
+        lw r5, 0(r2)
+        lw r6, 0(r3)
+        addiu r8, r4, 4
+        nop
+        addu r7, r5, r6
+        nop
+        sw r7, 0(r8)
+        ...
+done:   addiu r10, r9, 1
+\end{lstlisting}
+By swapping the addu and addiu instructions, we can avoid 1 nop for the dependence between the addu and the lw instructions. Regardless of how the addiu and addu instructions are scheduled, there will always be a nop right before the sw instruction due to the dependence.
+\begin{figure}[H]
+\centering
+\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{13}{c}{Cycle} \\
+& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\
+\hline
+1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & & & &\\
+\hline
+2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & & & &\\
+\hline
+3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & X0 & X1 & M & W & & & & &\\
+\hline
+4 & \texttt{addiu} & \texttt{r8, r4, 4} & & & & F & D & X0 & X1 & M & W & & & &\\
+\hline
+5 & \texttt{nop} & & & & & & F & D & X0 & X1 & M & W & & &\\
+\hline
+6 & \texttt{addu} & \texttt{r7, r5, r6} & & & & & & F & D & X0 & X1 & M & W & &\\
+\hline
+7 & \texttt{nop} & & & & & & & & F & D & X0 & X1 & M & W &\\
+\hline
+8 & \texttt{sw} & \texttt{r7, 0(r8)} & & & & & & & & F & D & X0 & X1 & M & W \\
+\hline
+\end{tabular}
+\caption{Software Scheduling Pipeline}
+\label{fig:sixstage_softwaresch_pipe_diagram}
+\end{figure}
+Instruction 6 (addu)'s D stage depends on instruction 2 (lw)'s M stage and instruction 3 (lw)'s M stage.\\
+Instruction 7 (sw)'s D stage depends on instruction 4 (addiu)'s X1 stage and instruction 6 (addu)'s X1 stage.\\
+
+\subsection{Resolving Data Hazards with Stalling}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{14}{c}{Cycle} \\
+& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14\\
+\hline
+1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & & & & &\\
+\hline
+2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & & & & &\\
+\hline
+3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & X0 & X1 & M & W & & & & & &\\
+\hline
+4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & D & D & D & X0 & X1 & M & W & & &\\
+\hline
+5 & \texttt{addiu} & \texttt{r8, r4, 4} & & & & & F & F & F & D & X0 & X1 & M & W & &\\
+\hline
+6 & \texttt{sw} & \texttt{r7, 0(r8)} & & & & & & & & F & F & D & X0 & X1 & M & W \\
+\hline
+\end{tabular}
+\caption{Hardware Stalling Pipeline}
+\label{fig:sixstage_hardwarestall_pipe_diagram}
+\end{figure}
+Instruction 6 (addu)'s D stage depends on instruction 2 (lw)'s M stage and instruction 3 (lw)'s M stage.\\
+Instruction 7 (sw)'s D stage depends on instruction 4 (addiu)'s X1 stage and instruction 6 (addu)'s X1 stage.\\
+
+\subsection{New Stall Signal}
+\begin{lstlisting}
+ostall_load_use_X_rs_D
+  =    val_D && rs_en_D && (val_X0 || val_X1) && (rf_wen_X0 || rf_wen_X1)
+    && ((inst_rs_D == rf_waddr_X0) || (inst_rs_D == rf_waddr_X1)) 
+    && ((rf_waddr_X0 != 0) || (rf_waddr_X1 != 0))
+    && ((op_X0 == LW) || (op_X1 == LW))
+ostall_load_use_X_rt_D
+  =    val_D && rt_en_D && (val_X0 || val_X1) && (rf_wen_X0 || rf_wen_X1)
+    && ((inst_rt_D == rf_waddr_X0) || (inst_rt_D == rf_waddr_X1)) 
+    && ((rf_waddr_X0 != 0) || (rf_waddr_X1 != 0))
+    && ((op_X0 == LW) || (op_X1 == LW))
+ostall_alu_use_X_rs_D
+  =    val_D && rs_en_D && val_X0 && rf_wen_X0
+    && (inst_rs_D == rf_waddr_X0) 
+    && (rf_waddr_X0 != 0)
+ostall_alu_use_X_rt_D
+  =    val_D && rt_en_D && val_X0 && rf_wen_X0
+    && (inst_rt_D == rf_waddr_X0) 
+    && (rf_waddr_X0 != 0)
+stall_D
+  =    val_D && !squash_D
+    && ((ostall_load_use_X_rs_D || ostall_load_use_X_rt_D) || 
+       (ostall_alu_use_X_rs_D || ostall_alu_use_X_rt_D))
+\end{lstlisting}
+
+\subsection{Resolving Control Hazards with Scheduling and Speculation}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c}
+\hline
+& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{10}{c}{Cycle} \\
+& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
+\hline
+1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & \\
+\hline
+2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & - & - & - & & & \\
+\hline
+3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & - & - & - & - & & \\
+\hline
+4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & - & - & - & - & - & \\
+\hline
+5 & \texttt{addiu} & \texttt{r10, r9, 1} & & & & & F & D & X0 & X1 & M & W \\
+\hline
+\end{tabular}
+\caption{Squashing Pipeline}
+\label{fig:squashing_diagram}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{tabular}{cll|c|c|c|c|c|c|c|c|c|c}
+\hline
+& \multicolumn{2}{l}{\textbf{Dynamic}} & \multicolumn{10}{c}{Cycle} \\
+& \multicolumn{2}{l}{\textbf{Transaction}} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
+\hline
+1 & \texttt{bne} & \texttt{r1, r0, done} & F & D & X0 & X1 & M & W & & & & \\
+\hline
+2 & \texttt{lw} & \texttt{r5, 0(r2)} & & F & D & X0 & X1 & M & W & & & \\
+\hline
+3 & \texttt{lw} & \texttt{r6, 0(r3)} & & & F & D & - & - & - & - & & \\
+\hline
+4 & \texttt{addu} & \texttt{r7, r5, r6} & & & & F & - & - & - & - & - & \\
+\hline
+5 & \texttt{addiu} & \texttt{r10, r9, 1} & & & & & F & D & X0 & X1 & M & W \\
+\hline
+\end{tabular}
+\caption{Branch Delay Slot Pipeline}
+\label{fig:branch_delay_diagram}
+\end{figure}
+
+\end{document}
