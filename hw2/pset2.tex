@@ -87,7 +87,7 @@ The cache performance will increase significantly, because there will no longer 
 \cleardoublepage
 \section{Page-Based Memory Translation}
 
-\section{Two-Level Page Tables}
+\subsection{Two-Level Page Tables}
 The 16-bit virtual address is used as the following:
 \begin{figure}[H]
 \centering
@@ -109,7 +109,7 @@ Page Tables:
 {
 \begin{tabular}{@{\extracolsep{3pt}}lcc@{}}
 \Xhline{2\arrayrulewidth}
-& \multicolumn{2}{c}{\textbf{Page-Table Entry}}
+& \multicolumn{2}{c}{\textbf{Page-Table Entry}} \\
 \textbf{Paddr of PTE} & \textbf{Valid} & \textbf{Paddr}\\
 \Xhline{2\arrayrulewidth}
 0xffffc & 1 & 0xfffe0 \\
@@ -210,7 +210,7 @@ Page Tables:
 \centering
 \begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
 \Xhline{2\arrayrulewidth}
-\textbf{Transaction} & & & & & & & & & & & & \\
+\textbf{Transaction} & & & & & & & & & & & \\
 \textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{L0} & \textbf{L1} & \textbf{L2} & \textbf{L3} & \textbf{L4} & \textbf{L5} & \textbf{L6} & \textbf{L7}\\
 \Xhline{2\arrayrulewidth}
 0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
@@ -234,9 +234,9 @@ Page Tables:
 0x110 & 0x2 & 0x1 & m &     & 0xc &     &     &     &     &     &     \\
 0x710 & 0xe & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
 \Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 16}}
+\multicolumn{12}{l}{\textbf{Number of Misses = 16}} \\
 \hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.8}}
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.8}} \\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
 \caption{Direct-Mapped Cache Contents Over Time}
@@ -274,9 +274,9 @@ Page Tables:
 0x110 & 0x4 & 0x1 & h &     &     &     & 0x18&     &     &     &     \\
 0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
 \Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 12}}
+\multicolumn{12}{l}{\textbf{Number of Misses = 12}} \\
 \hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.6}}
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.6}} \\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
 \caption{Two-Way Set-Associative Cache Contents Over Time with LRU Replacement}
@@ -314,9 +314,9 @@ Page Tables:
 0x110 & 0x4 & 0x1 & m &     &     &     & 0x18&     &     &     &     \\
 0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
 \Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 14}}
+\multicolumn{12}{l}{\textbf{Number of Misses = 14}} \\
 \hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.7}}
+\multicolumn{12}{l}{\textbf{Miss Rate = 0.7}} \\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
 \caption{Two-Way Set-Associative Cache Contents Over Time with FIFO Replacement}
@@ -325,28 +325,28 @@ Page Tables:
 \subsection{Sequential Tag Check then Memory Access}
 \begin{figure}[H]
 \centering
-\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
 \hline
 \textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
 \hline
-addr_reg_M0 & 1 & 1 \\
-tag_decoder & 3 + 2$\times$2 & 7 \\
-tag_mem 	& 10 + [(4+27)/16] & 12 \\
-tag_cmp		& 3 + 2[log2(26)] & 13 \\
-tag_and		& 2 - 1 & 1\\
-data_decoder& 3 + 2$\times$3 & 9 \\
-data_mem	& 10 + [(8+128)/16] & 19 \\
-rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
-rdata_reg_M1& 1 & 1
+addr\_reg\_M0 & 1 & 1 \\
+tag\_decoder & 3 + 2$\times$2 & 7 \\
+tag\_mem 	& 10 + [(4+27)/16] & 12 \\
+tag\_cmp		& 3 + 2[log2(26)] & 13 \\
+tag\_and		& 2 - 1 & 1\\
+data\_decoder& 3 + 2$\times$3 & 9 \\
+data\_mem	& 10 + [(8+128)/16] & 19 \\
+rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
+rdata\_reg\_M1& 1 & 1 \\
 \hline
 \textbf{Total} & & \textbf{73} \\
-addr_reg_M0 & 1 & 1 \\
-tag_decoder & 3 + 2$\times$2 & 7 \\
-tag_mem 	& 10 + [(4+27)/16] & 12 \\
-tag_cmp		& 3 + 2[log2(26)] & 13 \\
-tag_and		& 2 - 1 & 1\\
-data_decoder& 3 + 2$\times$3 & 9 \\
-data_mem	& 10 + [(8+128)/16] & 19 \\
+addr\_reg\_M0 & 1 & 1 \\
+tag\_decoder & 3 + 2$\times$2 & 7 \\
+tag\_mem 	& 10 + [(4+27)/16] & 12 \\
+tag\_cmp		& 3 + 2[log2(26)] & 13 \\
+tag\_and		& 2 - 1 & 1\\
+data\_decoder& 3 + 2$\times$3 & 9 \\
+data\_mem	& 10 + [(8+128)/16] & 19 \\
 \hline
 \textbf{Total} & & \textbf{62} \\
 \hline
@@ -354,40 +354,41 @@ data_mem	& 10 + [(8+128)/16] & 19 \\
 \caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with 
 \\ Serialized Tag Check before Data Access}
 \end{figure}
-The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the need for the tag check result to go through the data_decoder. It happens that the data_decoder?s delay is relatively significant (9$\tau$). This connection is needed so that the data can be outputted from the correct way. 
+The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the need for the tag check result to go through the data\_decoder. It happens that the data\_decoder?s delay is relatively significant (9$\tau$). This connection is needed so that the data can be outputted from the correct way. 
 
 \subsection{Parallel Read Hit Path}
 \begin{figure}[H]
 \centering
-\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
 \hline
 \textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
 \hline
-addr_reg_M0 & 1 & 1 \\
-addr_mux	& 3[log2(2)] + [5/8] & 4
-data_decoder& 3 + 2$\times$3 & 9 \\
-data_mem	& 10 + [(8+128)/16] & 19 \\
-rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
-rdata_reg_M1& 1 & 1
+addr\_reg\_M0 & 1 & 1 \\
+addr\_mux	& 3[log2(2)] + [5/8] & 4 \\
+data\_decoder& 3 + 2$\times$3 & 9 \\
+data\_mem	& 10 + [(8+128)/16] & 19 \\
+rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
+rdata\_reg\_M1& 1 & 1 \\
 \hline
 \textbf{Total} & & \textbf{44} \\
 \hline
 \end{tabular}
 \caption{Critical Path and Cycle Time for Direct Mapped Cache with
 \\ Parallel Read Hit}
+\end{figure}
 \begin{figure}[H]
 \centering
-\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
 \hline
 \textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
 \hline
-addr_reg_M0 & 1 & 1 \\
-addr_mux	& 3[log2(2)] + [5/8] & 4
-data_decoder& 3 + 2$\times$2 & 7 \\
-data_mem	& 10 + [(8+128)/16] & 19 \\
-rdata_mux	& 3[log2(4)] + [32/8] & 10 \\
-way_mux		& 3[log2(2)] + [32/8] & 7 \\
-rdata_reg_M1& 1 & 1
+addr\_reg\_M0 & 1 & 1 \\
+addr\_mux	& 3[log2(2)] + [5/8] & 4 \\
+data\_decoder& 3 + 2$\times$2 & 7 \\
+data\_mem	& 10 + [(8+128)/16] & 19 \\
+rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
+way\_mux		& 3[log2(2)] + [32/8] & 7 \\
+rdata\_reg\_M1& 1 & 1 \\
 \hline
 \textbf{Total} & & \textbf{49} \\
 \hline
@@ -400,36 +401,37 @@ The reason that the 2-way set-associative microarchitecture is slower than the d
 \subsection{Pipelined Write Hit Path}
 \begin{figure}[H]
 \centering
-\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
 \hline
 \textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
 \hline
-addr_reg_M0 & 1 & 1 \\
-tag_decoder & 3 + 2$\times$3 & 9 \\
-tag_mem 	& 10 + [(8+26)/16] & 13 \\
-tag_cmp		& 3 + 2[log2(25)] & 13 \\
-tag_and		& 2 - 1 & 1\\
-wen_and		& 2 - 1 & 1\\
-wen_reg_M1	& 1 & 1\\
+addr\_reg\_M0 & 1 & 1 \\
+tag\_decoder & 3 + 2$\times$3 & 9 \\
+tag\_mem 	& 10 + [(8+26)/16] & 13 \\
+tag\_cmp		& 3 + 2[log2(25)] & 13 \\
+tag\_and		& 2 - 1 & 1\\
+wen\_and		& 2 - 1 & 1\\
+wen\_reg\_M1	& 1 & 1\\
 \hline
 \textbf{Total} & & \textbf{39} \\
 \hline
 \end{tabular}
 \caption{Critical Path and Cycle Time for Direct Mapped Cache with
 \\ Pipelined Write Hit}
+\end{figure}
 \begin{figure}[H]
 \centering
-\begin{tabular}{@{\extracolsep{3pt}}llr{}}
+\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
 \hline
 \textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
 \hline
-addr_reg_M0 & 1 & 1 \\
-tag_decoder & 3 + 2$\times$2 & 7 \\
-tag_mem 	& 10 + [(4+27)/16] & 12 \\
-tag_cmp		& 3 + 2[log2(25)] & 13 \\
-tag_and		& 2 - 1 & 1\\
-wen_and		& 2 - 1 & 1\\
-wen_reg_M1	& 1 & 1\\
+addr\_reg\_M0 & 1 & 1 \\
+tag\_decoder & 3 + 2$\times$2 & 7 \\
+tag\_mem 	& 10 + [(4+27)/16] & 12 \\
+tag\_cmp		& 3 + 2[log2(25)] & 13 \\
+tag\_and		& 2 - 1 & 1\\
+wen\_and		& 2 - 1 & 1\\
+wen\_reg\_M1	& 1 & 1\\
 \hline
 \textbf{Total} & & \textbf{36} \\
 \hline
@@ -437,4 +439,5 @@ wen_reg_M1	& 1 & 1\\
 \caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
 \\ Pipelined Write Hit}
 \end{figure}
+
 \end{document}
