@@ -79,7 +79,7 @@
 \end{figure}
 
 \subsection{Average Memory Access Latency}
-Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.The average memory access latency is:AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)AMAL = 1 + (0.4 $\times$ 5)AMAL = 3 cyclesThe AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
+Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.\\The average memory access latency is: \\AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)\\AMAL = 1 + (0.4 $\times$ 5)\\AMAL = 3 cycles\\The AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
 
 \subsection{Set-Associativity}
 The cache performance will increase significantly, because there will no longer be conflict misses during the loop. With this new cache microarchitecture, only compulsory misses will be left. 
@@ -97,7 +97,8 @@ Bits 14-15 & Bits 12-13 & Bits 0-11 \\
 \hline
 XX & XX & XXXXXXXXXXXX \\
 \hline
-\multicolumn{2}{|c}{Virtual Page Number} & Page Offset \\
+\multicolumn{2}{|c|}{Virtual Page Number} & Page Offset \\
+\hline
 L1 Index & L2 Index & Page Offset \\
 \hline
 \end{tabular}
@@ -110,6 +111,7 @@ Page Tables:
 \begin{tabular}{@{\extracolsep{3pt}}lcc@{}}
 \Xhline{2\arrayrulewidth}
 & \multicolumn{2}{c}{\textbf{Page-Table Entry}} \\
+\cline{2-3}
 \textbf{Paddr of PTE} & \textbf{Valid} & \textbf{Paddr}\\
 \Xhline{2\arrayrulewidth}
 0xffffc & 1 & 0xfffe0 \\
@@ -244,6 +246,7 @@ Page Tables:
 
 \begin{figure}[H]
 \centering
+{\setlength{\tabcolsep}{2pt}
 \begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
 \Xhline{2\arrayrulewidth}
 \textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
@@ -279,11 +282,13 @@ Page Tables:
 \multicolumn{12}{l}{\textbf{Miss Rate = 0.6}} \\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
+}
 \caption{Two-Way Set-Associative Cache Contents Over Time with LRU Replacement}
 \end{figure}
 
 \begin{figure}[H]
 \centering
+{\setlength{\tabcolsep}{2pt}
 \begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
 \Xhline{2\arrayrulewidth}
 \textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
@@ -319,6 +324,7 @@ Page Tables:
 \multicolumn{12}{l}{\textbf{Miss Rate = 0.7}} \\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
+}
 \caption{Two-Way Set-Associative Cache Contents Over Time with FIFO Replacement}
 \end{figure}
 
@@ -340,6 +346,7 @@ rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
 rdata\_reg\_M1& 1 & 1 \\
 \hline
 \textbf{Total} & & \textbf{73} \\
+\hline
 addr\_reg\_M0 & 1 & 1 \\
 tag\_decoder & 3 + 2$\times$2 & 7 \\
 tag\_mem 	& 10 + [(4+27)/16] & 12 \\
@@ -351,6 +358,7 @@ data\_mem	& 10 + [(8+128)/16] & 19 \\
 \textbf{Total} & & \textbf{62} \\
 \hline
 \end{tabular}
+\captionsetup{justification=centering}
 \caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with 
 \\ Serialized Tag Check before Data Access}
 \end{figure}
@@ -438,6 +446,27 @@ wen\_reg\_M1	& 1 & 1\\
 \end{tabular}
 \caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
 \\ Pipelined Write Hit}
+\end{figure}
+
+\subsection{Average Memory Access Latency}
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}ccccccc@{}}
+\Xhline{2\arrayrulewidth}
+& & & \textbf{Hit} & \textbf{Miss} & \textbf{Miss} & \\
+& & \textbf{Replacement} & \textbf{Time} & \textbf{Rate} & \textbf{Penalty} & \textbf{AMAL} \\
+\textbf{Associativity} & \textbf{$\mu$arch} & \textbf{Policy} & \textbf{($\tau$)} & \textbf{(ratio)} & \textbf{($\tau$)} & \textbf{($\tau$)} \\
+\Xhline{2\arrayrulewidth}
+Direct Mapped   & Seq & n/a & 68 & 0.8 & 300 & 308\\
+2-way Set Assoc & Seq & LRU & 73 & 0.6 & 300 & 253\\
+2-way Set Assoc & Seq & FIFO& 73 & 0.7 & 300 & 283\\
+Direct Mapped   & PP  & n/a & 44 & 0.8 & 300 & 284\\
+2-way Set Assoc & PP  & LRU & 49 & 0.6 & 300 & 229\\
+2-way Set Assoc & PP  & FIFO& 49 & 0.7 & 300 & 259\\
+\hline
+\Xhline{2\arrayrulewidth}
+\end{tabular}
+\caption{Average Memory Access Latency for Six Cache Configurations}
 \end{figure}
 
 \end{document}

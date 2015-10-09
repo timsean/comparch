@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  9 OCT 2015 19:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  9 OCT 2015 19:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -417,19 +417,9 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 {/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 [2
 
-] [3]
-Overfull \hbox (23.07802pt too wide) in paragraph at lines 252--287
- [][] 
- []
+] [3] [4
 
-[4
-
-]
-Overfull \hbox (23.07802pt too wide) in paragraph at lines 292--327
- [][] 
- []
-
-[5] [6] [7] (./pset2.aux) ) 
+] [5] [6] [7] (./pset2.aux) ) 
 Here is how much of TeX's memory you used:
  6550 strings out of 493089
  96081 string characters out of 6134842
@@ -437,19 +427,19 @@ Here is how much of TeX's memory you used:
  9920 multiletter control sequences out of 15000+600000
  12585 words of font info for 31 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 68i,12n,98p,373b,351s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/
-cm-super/cm-super-t1.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/c
-m-super/sfbx1000.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-
-super/sfbx1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-su
-per/sfbx1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-supe
-r/sfrm1000.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/
-sfrm1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sf
-rm1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfsl
-1000.pfb>
-Output written on pset2.pdf (7 pages, 146868 bytes).
+ 68i,12n,98p,373b,415s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvip
+s/cm-super/cm-super-t1.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public
+/cm-super/sfbx1000.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/c
+m-super/sfbx1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-
+super/sfbx1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-su
+per/sfrm1000.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-supe
+r/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/
+sfrm1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sf
+sl1000.pfb>
+Output written on pset2.pdf (7 pages, 148065 bytes).
 PDF statistics:
  65 PDF objects out of 1000 (max. 8388607)
  46 compressed objects within 1 object stream
