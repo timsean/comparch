@@ -482,9 +482,9 @@ Direct Mapped   & PP  & n/a & 44 & 0.8 & 300 & 284\\
 & \textbf{Number of} & & \textbf{Execution} & \textbf{Useful} & \textbf{Raw} & \textbf{Control} & \textbf{Memory} \\
 \textbf{Part} & \textbf{Instructions} & \textbf{CPI} & \textbf{Time (cyc)} & \textbf{Work} & \textbf{Stalls} & \textbf{Squashes} & \textbf{Stalls}\\
 \hline
-\textbf{Part 4.A} & 512 & 1.5 & 768 & 1 & 0.25 & 0 & 0.25\\
+\textbf{Part 4.A} & 256 & 1.5 & 384 & 1 & 0.25 & 0 & 0.25\\
 \hline
-\textbf{Part 4.B} & & & & & & & \\
+\textbf{Part 4.B} & 256 & 2.25 & 576 & 1 & 1 & 0 & 0.25\\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
 \caption{Execution Time for Reverse Operation on Array and Linked List Data Structures}
@@ -498,8 +498,8 @@ c = cycle lost due to control squashes\\
 
 \subsection{Analyzing Performance of an Array Data Structure}
 Table on next page.\\
-The loop runs 64 times. Therefore, the total number of instructions executed is 64 $\times$ 8 = 512 instructions. 
-The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both loads. Because the cachline is 16 bytes, these misses will occur every 4 loops. The number of cycles in this cache-miss loop is 18. For when both load words find a hit in the cache (between the latter two bold lines), the cycle count for the loop is 10. This occurs 3 times out of every 4 loops. Therefore, the total cycles for 4 loops is 18 + 3$\times$10 = 48. This is then looped 16 times for a total of 64 loops. Therefore, the total number of cycles for the program (ignoring the first 4 instructions for setup) is 16 $\times$ 48 = 768. The CPI for the entire program is therefore 768/512 = 1.5.
+The loop runs 32 times. Therefore, the total number of instructions executed is 32 $\times$ 8 = 256 instructions. 
+The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both loads. Because the cacheline is 16 bytes, these misses will occur every 4 loops. The number of cycles in this cache-miss loop is 18. For when both load words find a hit in the cache (between the latter two bold lines), the cycle count for the loop is 10. This occurs 3 times out of every 4 loops. Therefore, the total cycles for 4 loops is 18 + 3$\times$10 = 48. This is then looped 8 times for a total of 32 loops. Therefore, the total number of cycles for the program (ignoring the first 4 instructions for setup) is 8 $\times$ 48 = 384. The CPI for the entire program is therefore 384/256 = 1.5.
 Here is a breakdown of the CPI for each cycle type:\\
 \begin{lstlisting}
 First Iteration Cycle Type Breakdown:
@@ -513,17 +513,17 @@ m = 0 cycles
 r = 0 cycle
 c = 2 cycles
 Overall CPI Breakdown:
-u = 16*8 + 48*8 = 512 cycles, 512/512 = 1.00 CPI
-m = 16*8 + 48*0 = 128 cycles, 128/512 = 0.25 CPI
-r = 16*0 + 48*0 =   0 cycles,   0/512 = 0.00 CPI
-c = 16*2 + 48*2 = 128 cycles, 128/512 = 0.25 CPI
+u = 8*8 + 24*8 = 256 cycles, 256/256 = 1.00 CPI
+m = 8*8 + 24*0 =  64 cycles,  64/256 = 0.25 CPI
+r = 8*0 + 24*0 =   0 cycles,   0/256 = 0.00 CPI
+c = 8*2 + 24*2 =  64 cycles,  64/256 = 0.25 CPI
 total                                 = 1.50 CPI
 \end{lstlisting}
 \begin{landscape}
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 2pt}c|c|c|c|c|c|c|c|c|c!{\vrule width 2pt}c|}
+\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
 \hline
 Cycle type: &  &  &  &  & m & m & m & m & u & m & m & m & m & u & u & u & u & u & u & u & c & c & u & u & u & u & u & u & u & u & c & c & u \\ \hline
 Instruction & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 \\ \hline
@@ -554,62 +554,59 @@ lw r12, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  
 \end{figure}
 \end{landscape}
 
-\subsection{Analyzing Performance of an Array Data Structure}
+\subsection{Analyzing Performance of a Linked-List Data Structure}
 Table on next page.\\
-The loop runs 64 times. Therefore, the total number of instructions executed is 64 $\times$ 8 = 512 instructions. 
-The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both loads. Because the cachline is 16 bytes, these misses will occur every 4 loops. The number of cycles in this cache-miss loop is 18. For when both load words find a hit in the cache (between the latter two bold lines), the cycle count for the loop is 10. This occurs 3 times out of every 4 loops. Therefore, the total cycles for 4 loops is 18 + 3$\times$10 = 48. This is then looped 16 times for a total of 64 loops. Therefore, the total number of cycles for the program (ignoring the first 4 instructions for setup) is 16 $\times$ 48 = 768. The CPI for the entire program is therefore 768/512 = 1.5.
+The loop runs 32 times. Therefore, the total number of instructions executed is 32 $\times$ 8 = 256 instructions. 
+The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both of the first two loads. The number of cycles in this cache-miss loop is 18. On the second iteration (between the latter two bold lines), those first 2 load words will still be misses because they are in a different 16-byte location due to each node taking up an entire cacheline. r4 and r5 are changed to point to new nodes on the previous iteration, so these new nodes will need to be brought into the cache. Therefore, the second iteration and all other iterations have the same cycle count as the first iteration. The total number of cycles for the program (ignoring the first 4 instructions for setup) is 32 $\times$ 18 = 576. The CPI for the entire program is therefore 576/256 = 2.25.
 Here is a breakdown of the CPI for each cycle type:\\
 \begin{lstlisting}
-First Iteration Cycle Type Breakdown:
+All Iterations Cycle Type Breakdown:
 u = 8 cycles
 m = 8 cycles
 r = 0 cycle
 c = 2 cycles
-Second Iteration Cycle Type Breakdown:
-u = 8 cycles
-m = 0 cycles
-r = 0 cycle
-c = 2 cycles
 Overall CPI Breakdown:
-u = 16*8 + 48*8 = 512 cycles, 512/512 = 1.00 CPI
-m = 16*8 + 48*0 = 128 cycles, 128/512 = 0.25 CPI
-r = 16*0 + 48*0 =   0 cycles,   0/512 = 0.00 CPI
-c = 16*2 + 48*2 = 128 cycles, 128/512 = 0.25 CPI
-total                                 = 1.50 CPI
+u = 32*8 = 256 cycles, 256/256 = 1.00 CPI
+m = 32*8 = 256 cycles, 256/256 = 1.00 CPI
+r = 32*0 =   0 cycles,   0/256 = 0.00 CPI
+c = 32*2 =  64 cycles,  64/256 = 0.25 CPI
+total                          = 2.25 CPI
 \end{lstlisting}
 \begin{landscape}
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 2pt}c|c|c|c|c|c|c|c|c|c!{\vrule width 2pt}c|}
+\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
 \hline
-Cycle type: &  &  &  &  & m & m & m & m & u & m & m & m & m & u & u & u & u & u & u & u & c & c & u & u & u & u & u & u & u & u & c & c & u \\ \hline
-Instruction & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 \\ \hline
-lw r12, 0(r4) & F & D & X & M & M & M & M & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r13, 0(r5) &  & F & D & X & X & X & X & X & M & M & M & M & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-sw r12, 0(r5) &  &  & F & D & D & D & D & D & X & X & X & X & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-sw r13, 0(r4) &  &  &  & F & F & F & F & F & D & D & D & D & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r14, r5, 0 &  &  &  &  &  &  &  &  & F & F & F & F & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r4, r4, 4 &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r5, r5, -4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-bne r4, r14, loop &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-opA &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & - & - & - &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-opB &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & - & - & - & - &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r12, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r13, 0(r5) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  \\ \hline
-sw r12, 0(r5) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  \\ \hline
-sw r13, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  \\ \hline
-addiu r14, r5, 0 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  \\ \hline
-addiu r4, r4, 4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  \\ \hline
-addiu r5, r5, -4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  \\ \hline
-bne r4, r14, loop &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  \\ \hline
-opA &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & - & - & - &  &  \\ \hline
-opB &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & - & - & - & - &  \\ \hline
-lw r12, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W \\ \hline
+Cycle type:       &   &   &   &   & m & m & m & m & u & m  & m  & m  & m  & u  & u  & u  & u  & u  & u  & u  & c  & c  & m  & m  & m  & m  & u  & m  & m  & m  & m  & u  & u  & u  & u  & u  & u  & u  & c  & c  & u  \\ \hline
+Instruction       & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 & 34 & 35 & 36 & 37 & 38 & 39 & 40 & 41 \\ \hline
+lw r12, 0(r4)     & F & D & X & M & M & M & M & M & W &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r13, 0(r5)     &   & F & D & X & X & X & X & X & M & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+sw r12, 0(r5)     &   &   & F & D & D & D & D & D & X & X  & X  & X  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+sw r13, 0(r4)     &   &   &   & F & F & F & F & F & D & D  & D  & D  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+addiu r14, r5, 0  &   &   &   &   &   &   &   &   & F & F  & F  & F  & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r4, 4(r4)      &   &   &   &   &   &   &   &   &   &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r5, 8(r5)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+bne r4, r14, loop &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+opA               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+opB               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r12, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r13, 0(r5)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & X  & X  & X  & X  & M  & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    \\ \hline
+sw r12, 0(r5)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    & F  & D  & D  & D  & D  & D  & X  & X  & X  & X  & X  & M  & W  &    &    &    &    &    &    &    &    \\ \hline
+sw r13, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    & F  & F  & F  & F  & F  & D  & D  & D  & D  & D  & X  & M  & W  &    &    &    &    &    &    &    \\ \hline
+addiu r14, r5, 0  &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & F  & F  & F  & F  & D  & X  & M  & W  &    &    &    &    &    &    \\ \hline
+lw r4, 4(r4)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    \\ \hline
+lw r5, 8(r5)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    \\ \hline
+bne r4, r14, loop &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    \\ \hline
+opA               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opB               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+lw r12, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  \\ \hline
 \end{tabular}
 }
-\caption{Array Data Structure Pipeline Diagram}
+\caption{Linked List Data Structure Pipeline Diagram}
 \end{figure}
 \end{landscape}
+
+\subsection{Comparison of Data Structures}
 
 \end{document}
