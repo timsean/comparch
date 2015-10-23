@@ -47,7 +47,7 @@
 
 \title{ECE 4750 PSET 2}
 \author{Tim Yao (ty252)}
-\date{Oct 10, 2015}
+\date{Oct 9, 2015}
 
 \begin{document}
 \maketitle
@@ -82,7 +82,12 @@
 \end{figure}
 
 \subsection{Average Memory Access Latency}
-Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.\\The average memory access latency is: \\AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)\\AMAL = 1 + (0.4 $\times$ 5)\\AMAL = 3 cycles\\The AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
+Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.\\
+The average memory access latency is: \\
+AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)\\
+AMAL = 1 + (0.4 $\times$ 5)\\
+AMAL = 3 cycles\\
+The AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
 
 \subsection{Set-Associativity}
 The cache performance will increase significantly, because there will no longer be conflict misses during the loop. With this new cache microarchitecture, only compulsory misses will be left. 
@@ -450,6 +455,7 @@ wen\_reg\_M1	& 1 & 1\\
 \caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
 \\ Pipelined Write Hit}
 \end{figure}
+The reason that the direct-mapped microarchitecture is slower than the 2-way set-associative microarchitecture is the larger tag\_decoder, which is needed to fetch the correct tag from the tag memory. Because the direct mapped cache uses a 3 to 8 decoder instead of a smaller 2 to 4 decoder of the 2-way set associative cache, the critical path is longer. There is also 1$\tau$ extra delay for the tag\_mem due to it being 8 rows instead of 4 rows in the 2-way set-associative cache.
 
 \subsection{Average Memory Access Latency}
 \begin{figure}[H]
@@ -470,6 +476,7 @@ Direct Mapped   & PP  & n/a & 44 & 0.8 & 300 & 284\\
 \end{tabular}
 \caption{Average Memory Access Latency for Six Cache Configurations}
 \end{figure}
+The pipelined 2-way set-associative cache with a LRU replacement policy has the lowest average memory access time. I think that this conclusion is fairly general due to several factors. Set associative caches generally performed better than direct mapped caches due to its better ability to handle sparser data. Due to the pipelined write and parallel read hit, the cycle time is also much lower than the sequential architecture. The LRU policy is very beneficial for real world programs that generally display temporal locality in data use. I think that in most cases, it is safe to say that we should choose this configuration. However, in some specific cases, this may not be the best choice. For example, for programs that have very structured spatial locality, it might be better to use a direct mapped cache due to its larger index. This can improve performance slightly with the lower cycle time. Also in technology where energy consumption and heat dissipation is a larger concern, the parallel read hit design can be bad due to wasted power in reading the data memory even though there was no tag hit. 
 
 \cleardoublepage
 \section{Array vs. List Cache Behavior}
@@ -608,5 +615,12 @@ lw r12, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &
 \end{landscape}
 
 \subsection{Comparison of Data Structures}
+In this example, the regular array data structure performed better due to its better spacial locality. Its values are packed right next to each other, so each cacheline can hold 4 values. The linked list can only pack 1 value (node) in each cacheline, so on every loop, the cache needs to read from the memory to bring in the new nodes. \\
+The execution time of the regular array will improve slightly with larger cachelines (in relation to 1/x where x is the cacheline size) and the CPI will approach 1.25. However, the linked list will not improve at all because we are still only allocating one node per cacheline. This means that on every iteration, we still need to fetch from the memory. \\
+If we now organize multiple linked-list nodes on the same cacheline, the linked-list performance will increase significantly and the CPI will also approach 1.25. This is because we will not have to fetch from the memory on every iteration. With more nodes in each cacheline, the spatial locality increases, and therefore the cache performance also increases. \\
+Assuming the cacheline size stays the same and that the cache size is infinite, the execution time will grow linearly with the number of elements in the data structure. As we had shown above, the steady state behavior stays the same for all iterations after the first iteration. This directly relates to the asymptotic behavior of O(n) for these two data structures. \\
+If we had no cache misses, both execution times will improve and the CPI will be 1.25. This is because the memory accesses will all only take a single cycle and there will be no cycles lost due to memory stall, which was a significant part of the CPI. \\
+The general conclusion is that spatial locality can significantly affect the program performance. Simple and compact data structures such as arrays or matrices can achieve better performance due to its ability to pack more values into a single cacheline. Dynamic and irregular structures such as list, trees, and graphs are much worse due to the possible sparsity of the data. This means that while traversing these structures, the next node may not be near the previous node, which will make it likely to cause a cache miss. These structures are also much more complex, so we are not able to pack as many of them into a cacheline as we can with the simple data structures. This further negatively impacts the performance of programs. 
+
 
 \end{document}
