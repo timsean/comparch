@@ -45,49 +45,55 @@
 % For monospace stuff
 
 
-\title{ECE 4750 PSET 2}
+\title{ECE 4750 PSET 3}
 \author{Tim Yao (ty252)}
-\date{Oct 9, 2015}
+\date{Nov 6, 2015}
 
 \begin{document}
 \maketitle
 \newcommand*{\tableindent}{\hspace*{0.3cm}}%
 
-\section{PARCv1 Instruction Cache} 
-\subsection{Categorizing Cache Misses}
+\section{Tree Network Topologies} 
+
 \begin{figure}[H]
 \centering
-\begin{tabular}{clcc}
+\begin{tabular}{@{\extracolsep{3pt}}llcccc@{}}
+\Xhline{2\arrayrulewidth}
+& & & \textit{b} & & $\Theta_{term}$ \\
+\textbf{Part} & \textbf{Topology} & $B_c$ & {(bits/cycle)} & $\gamma_{max}$ & {(bits/cycle)} \\
 \hline
-\textbf{Addr} &\textbf{Instruction}& \textbf{Iteration 1} & \textbf{Iteration 2}\\
+\textbf{Part 1.A} & \textbf{Baseline Tree Topology} & 2 & 32 & 2 & 16 \\
 \hline
-& loop: & & \\
-\hline
-0x108 & \tableindent addiu r1, r1, -1 & compulsory & \\
-\hline
-0x10c & \tableindent addiu r2, r2, -1 & 		   & \\
-\hline
-0x110 & \tableindent j foo			  & compulsory & conflict \\
-\hline
-	  & ...							  & 		   & \\
-\hline
-	  & foo:						  & 		   & \\
-\hline
-0x218 & \tableindent addiu r6, r6, 1  & compulsory & conflict \\
-\hline
-0x21c & \tableindent bne r1, r0, loop & 	       & \\
-\hline
+\textbf{Part 1.B} & \textbf{Fat-Tree Topology} & 8 & 32 & 1 & 32  \\
+\Xhline{2\arrayrulewidth}
 \end{tabular}
-\caption{Cache Miss Type}
+\caption{Ideal Terminal Throughput for Tree Topologies}
 \end{figure}
 
-\subsection{Average Memory Access Latency}
-Looking at iteration 2, we can see that there are 2 misses out of the 5 instructions. Therefore the miss rate for 64 iterations of the loop is 0.4.\\
-The average memory access latency is: \\
-AMAL = (Hit Time) + (Miss Rate $\times$ Miss Penalty)\\
-AMAL = 1 + (0.4 $\times$ 5)\\
-AMAL = 3 cycles\\
-The AMAL is dominated by conflict misses, as shown by the miss chart above. Compulsory misses only occur on the first iteration of the loop.
+\begin{figure}[H]
+\centering
+\begin{tabular}{@{\extracolsep{3pt}}llccccccc@{}}
+\Xhline{2\arrayrulewidth}
+& & & & \textit{$t_r$} & & \textit{$t_c$} & \textit{$L/b$} & \textit{$t_0$}\\
+\textbf{Part} & \textbf{Topology} & \textit{$H_D$} & \textit{$H_r$} & (cycles) & \textit{$H_d$} & (cycle) & (cycle) & (cycle) \\
+\hline
+\textbf{Part 1.A} & \textbf{Baseline Tree Topology} & 2 & 32 & 2 & 16 & & &\\
+\hline
+\textbf{Part 1.B} & \textbf{Fat-Tree Topology} & 8 & 32 & 1 & 32 & & & \\
+\Xhline{2\arrayrulewidth}
+\end{tabular}
+\caption{Zero-Load Latency for Tree Topologies}
+\end{figure}
+
+\subsection{Performance of Baseline Tree Topology}
+To calculate the minimum bisection channel count, I first found the minimum bisection cut. This happens to be the cut on the channels that connect the two level-2 routers. This cut cuts 2 channels, so the $B_c$ is 2. \\
+To calculate the max channel, there are 3 possibilities. It can be the channels connecting between the nodes and the level-1 routers, level-1 and level-2 routers, and between the two level-2 routers. Because we are dealing with uniform random routing, all channels of one level has the same load.\\
+The channel load for channels between nodes and level-1 routers are 1. In uniform random routing, the amount traffic sent from and to a node is always equal to 1. \\
+The channel load for channels between level-1 and level-2 routers are 1.5. To calculate this, I first look at the amount of traffic that is sent from one node to all other nodes that require crossing the this channel. For example, all traffic that go from node 0 to 2,3,4,5,6,7 need to cross this channel. Each unit of traffic is 1/8, so for each node that resides under (in the sense of a tree) that channel is 6/8. Because there are 2 nodes (ie. node 0 and 1) under that channel, the max channel load is 2*6/8 = 12/8 = 3/2.\\
+The channel load for channels between level-2 routers are 2. We use the same idea from the previous calculation to calculate this max load. Each node on the left side needs to send to 4 nodes on the right side, therefore, each node contributes 4*1/8 = 1/2 unit of traffic. There are 4 nodes, so the max load is 4*1/2 = 2.
+From this, we see that the max channel load is between the two level 2 routers. And using the ideal terminal throughput equation, $\Theta_{term}$=$B_c$/$\gamma_{max}$, I calculated that $\Theta_{term}$=32/2=16.
+\subsection{Performance of Fat-Tree Topology}
+We use the same approach as in the previous section to calculate the max channel load and ideal terminal throughput for the baseline tree topology. Again, the channels connecting nodes to level-1 routers have a load of 1. The total load on all channels between level-1 and level-2 routers are the same (because this is a uniforma random traffic pattern), but now there are twice the number of channels. Therefore, the channel load is 6/8=3/4. The total load on all channels between the two level-2 routers are also the same, but because there are now 4 times the number of channels, the channel load is 1/2. Therefore, the max channel load is on the channels between nodes and level-1 routers. The max channel load is 1 and the ideal terminal throughput is 32/1=32.
 
 \subsection{Set-Associativity}
 The cache performance will increase significantly, because there will no longer be conflict misses during the loop. With this new cache microarchitecture, only compulsory misses will be left. 
