@@ -33,6 +33,7 @@
   showstringspaces=false,
   columns=flexible,
   keepspaces=true,
+  numbers=left,
   basicstyle={\small\ttfamily},
   keywordstyle=\color{blue},
   commentstyle=\color{dkgreen},
@@ -168,6 +169,9 @@ lw r3 , 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    & F  &
 }
 \caption{Pipeline Diagram for Single-Issue PARCv1 Processor}
 \end{figure}
+As shown by the bold vertical lines, each loop takes 12 cycles to execute. The CPI is therefore 12/10 = 1.2. The IPC is 1/CPI = 0.833.\\
+CPI = 1.2 cycles/instruction\\
+IPC = 0.83 instruction/cycles\\
 
 \subsection{Pipeline Diagram for Dual-Issue PARCv1 Processor}
 
@@ -197,6 +201,9 @@ lw r3 , 0(r4)     &    &    &    &    &    &    &    &    &    &    &    & F  & 
 }
 \caption{Pipeline Diagram for Dual-Issue PARCv1 Processor}
 \end{figure}
+As shown by the bold vertical lines, each loop takes 11 cycles to execute. The CPI is therefore 11/10 = 1.1. The IPC is 1/CPI = 0.910.\\
+CPI = 1.1 cycles/instruction\\
+IPC = 0.91 instruction/cycles\\
 
 \subsection{Optimized Pipeline Diagram for Dual-Issue PARCv1 Processor}
 
@@ -237,8 +244,66 @@ lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & B0 & B1 & 
 addiu r2, r2, 4   &    &    &    &    &    &    &    &    & F  & D  & A0 & A1 & W  \\ \hline
 \end{tabular}
 }
-\caption{Pipeline Diagram for Dual-Issue PARCv1 Processor}
+\caption{Optimized Pipeline Diagram for Dual-Issue PARCv1 Processor}
 \end{figure}
+
+As shown by the bold vertical lines, each loop takes 8 cycles to execute. The CPI is therefore 8/10 = 0.8. The IPC is 1/CPI = 1.25.\\
+CPI = 0.8 cycles/instruction\\
+IPC = 1.25 instruction/cycles\\
+
+\subsection{Optimized Pipeline Diagram for Quad-Issue PARCv1 Processor}
+
+\begin{lstlisting}
+lw r1 , 0(r2)     
+addiu r2, r2, 4   
+lw r3 , 0(r4)     
+addiu r4, r4, 4   
+mul r1, r1, r6    
+addiu r10, r10, -1
+mul r3, r3, r7    
+addu r8, r1, r3   
+addu r9, r9, r8   
+bne r10, r0, loop                
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
+\hline
+Cycle:            & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 \\ \hline
+lw r1 , 0(r2)     & F  & D  & B0 & B1 & W  &    &    &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    \\ \hline
+lw r3 , 0(r4)     & F  & D  & H0 & H1 & W  &    &    &    &    &    &    &    \\ \hline
+addiu r4, r4, 4   & F  & D  & G0 & G1 & W  &    &    &    &    &    &    &    \\ \hline
+mul r1, r1, r6    &    &    & F  & D  & A0 & A1 & W  &    &    &    &    &    \\ \hline
+addiu r10, r10, -1&    &    & F  & D  & B0 & B1 & W  &    &    &    &    &    \\ \hline
+mul r3, r3, r7    &    &    & F  & D  & G0 & G1 & W  &    &    &    &    &    \\ \hline
+addu r8, r1, r3   &    &    & F  & D  & D  & H0 & H1 & W  &    &    &    &    \\ \hline
+addu r9, r9, r8   &    &    &    & F  & F  & D  & B0 & B1 & W  &    &    &    \\ \hline
+bne r10, r0, loop &    &    &    & F  & F  & D  & A0 & A1 & W  &    &    &    \\ \hline
+opA               &    &    &    & F  & F  & D  & G0 & -  & -  &    &    &    \\ \hline
+opB               &    &    &    & F  & F  & D  & H0 & -  & -  &    &    &    \\ \hline
+opC               &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opD               &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opE               &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opF               &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opG               &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+opH               &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+opI               &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+opJ               &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    &    &    & F  & D  & A0 & A1 & W  \\ \hline
+lw r3 , 0(r4)     &    &    &    &    &    &    &    & F  & D  & H0 & H1 & W  \\ \hline
+addiu r4, r4, 4   &    &    &    &    &    &    &    & F  & D  & G0 & G1 & W  \\ \hline
+\end{tabular}
+}
+\caption{Optimized Pipeline Diagram for Dual-Issue PARCv1 Processor}
+\end{figure}
+
+As shown by the bold vertical lines, each loop takes 7 cycles to execute. The CPI is therefore 7/10 = 0.7. The IPC is 1/CPI = 1.43.\\
+CPI = 0.7 cycles/instruction\\
+IPC = 1.43 instruction/cycles\\
 
 \cleardoublepage
 \section{Impact of Cache Access Time and Replacement Policy}
