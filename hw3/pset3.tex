@@ -174,31 +174,71 @@ lw r3 , 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    & F  &
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|}
+\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|}
 \hline
-Cycle:            & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 \\ \hline
-lw r1 , 0(r2)     & F  & D  & B0 & B1 & W  &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r3 , 0(r4)     & F  & D  & D  & B0 & B1 & W  &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-mul r1, r1, r6    &    & F  & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-mul r3, r3, r7    &    & F  & F  & D  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    &    &    \\ \hline
-addu r8, r1, r3   &    &    &    & F  & F  & D  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    \\ \hline
-addu r9, r9, r8   &    &    &    & F  & F  & D  & D  & D  & B0 & B1 & W  &    &    &    &    &    &    &    \\ \hline
-addiu r2, r2, 4   &    &    &    &    &    & F  & F  & F  & D  & A0 & A1 & W  &    &    &    &    &    &    \\ \hline
-addiu r4, r4, 4   &    &    &    &    &    & F  & F  & F  & D  & B0 & B1 & W  &    &    &    &    &    &    \\ \hline
-addiu r10, r10, -1&    &    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  &    &    &    &    &    \\ \hline
-bne r10, r0, loop &    &    &    &    &    &    &    &    & F  & D  & D  & A0 & A1 & W  &    &    &    &    \\ \hline
-opA               &    &    &    &    &    &    &    &    &    & F  & F  & D  & -  & -  & -  &    &    &    \\ \hline
-opB               &    &    &    &    &    &    &    &    &    & F  & F  & D  & -  & -  & -  &    &    &    \\ \hline
-opC               &    &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    \\ \hline
-opD               &    &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    \\ \hline
-lw r1 , 0(r2)     &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  &    \\ \hline
-lw r3 , 0(r4)     &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & D  & B0 & B1 & W  \\ \hline
+Cycle:            & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 \\ \hline
+lw r1 , 0(r2)     & F  & D  & B0 & B1 & W  &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+lw r3 , 0(r4)     & F  & D  & D  & B0 & B1 & W  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+mul r1, r1, r6    &    & F  & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    &    &    \\ \hline
+mul r3, r3, r7    &    & F  & F  & D  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    &    \\ \hline
+addu r8, r1, r3   &    &    &    & F  & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    \\ \hline
+addu r9, r9, r8   &    &    &    & F  & F  & D  & D  & B0 & B1 & W  &    &    &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    & F  & F  & D  & A0 & A1 & W  &    &    &    &    &    &    \\ \hline
+addiu r4, r4, 4   &    &    &    &    &    & F  & F  & D  & B0 & B1 & W  &    &    &    &    &    &    \\ \hline
+addiu r10, r10, -1&    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  &    &    &    &    &    \\ \hline
+bne r10, r0, loop &    &    &    &    &    &    &    & F  & D  & D  & A0 & A1 & W  &    &    &    &    \\ \hline
+opA               &    &    &    &    &    &    &    &    & F  & F  & D  & -  & -  & -  &    &    &    \\ \hline
+opB               &    &    &    &    &    &    &    &    & F  & F  & D  & -  & -  & -  &    &    &    \\ \hline
+opC               &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    \\ \hline
+opD               &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    &    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  &    \\ \hline
+lw r3 , 0(r4)     &    &    &    &    &    &    &    &    &    &    &    & F  & D  & D  & B0 & B1 & W  \\ \hline
 \end{tabular}
 }
 \caption{Pipeline Diagram for Dual-Issue PARCv1 Processor}
 \end{figure}
 
 \subsection{Optimized Pipeline Diagram for Dual-Issue PARCv1 Processor}
+
+\begin{lstlisting}
+lw r1 , 0(r2)     
+addiu r2, r2, 4   
+lw r3 , 0(r4)     
+addiu r4, r4, 4   
+mul r1, r1, r6    
+addiu r10, r10, -1
+mul r3, r3, r7    
+addu r8, r1, r3   
+addu r9, r9, r8   
+bne r10, r0, loop                
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
+\hline
+Cycle:            & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 \\ \hline
+lw r1 , 0(r2)     & F  & D  & B0 & B1 & W  &    &    &    &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    &    \\ \hline
+lw r3 , 0(r4)     &    & F  & D  & B0 & B1 & W  &    &    &    &    &    &    &    \\ \hline
+addiu r4, r4, 4   &    & F  & D  & A0 & A1 & W  &    &    &    &    &    &    &    \\ \hline
+mul r1, r1, r6    &    &    & F  & D  & A0 & A1 & W  &    &    &    &    &    &    \\ \hline
+addiu r10, r10, -1&    &    & F  & D  & B0 & B1 & W  &    &    &    &    &    &    \\ \hline
+mul r3, r3, r7    &    &    &    & F  & D  & A0 & A1 & W  &    &    &    &    &    \\ \hline
+addu r8, r1, r3   &    &    &    & F  & D  & D  & B0 & B1 & W  &    &    &    &    \\ \hline
+addu r9, r9, r8   &    &    &    &    & F  & F  & D  & B0 & B1 & W  &    &    &    \\ \hline
+bne r10, r0, loop &    &    &    &    & F  & F  & D  & A0 & A1 & W  &    &    &    \\ \hline
+opA               &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opB               &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
+opC               &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+opD               &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & B0 & B1 & W  \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    &    &    &    & F  & D  & A0 & A1 & W  \\ \hline
+\end{tabular}
+}
+\caption{Pipeline Diagram for Dual-Issue PARCv1 Processor}
+\end{figure}
 
 \cleardoublepage
 \section{Impact of Cache Access Time and Replacement Policy}
