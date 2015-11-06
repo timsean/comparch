@@ -1,6 +1,7 @@
 \documentclass[10pt]{article}
 
 \usepackage{graphicx}
+\usepackage{epstopdf}
 \usepackage{float}
 \usepackage[T1]{fontenc}
 \usepackage[titletoc]{appendix}
@@ -44,7 +45,6 @@
 }
 
 % For monospace stuff
-
 
 \title{ECE 4750 PSET 3}
 \author{Tim Yao (ty252)}
@@ -186,6 +186,8 @@ pkt7   &    &    &    &    &    &    &    & I  & RO & L0 & L1 & R1 & O  \\ \hlin
 \end{figure}
 As show by the bolded vertical lines, in steady state, it takes 1 cycle to move a packet. This gives a peak terminal throughput of 1 packet per cycle.
 
+\subsection{Pipeline Diagram for Round-Robin Arbitration}
+
 \cleardoublepage
 \section{In-Order Superscalar Processors}
 
@@ -295,7 +297,7 @@ addiu r2, r2, 4   &    &    &    &    &    &    &    &    & F  & D  & A0 & A1 & 
 
 As shown by the bold vertical lines, each loop takes 8 cycles to execute. The CPI is therefore 8/10 = 0.8. The IPC is 1/CPI = 1.25.\\
 CPI = 0.8 cycles/instruction\\
-IPC = 1.25 instructions/cycle\\
+IPC = 1.25 instructions/cycle
 
 \subsection{Optimized Pipeline Diagram for Quad-Issue PARCv1 Processor}
 
@@ -349,419 +351,30 @@ addiu r4, r4, 4   &    &    &    &    &    &    &    & F  & D  & G0 & G1 & W  \\
 
 As shown by the bold vertical lines, each loop takes 7 cycles to execute. The CPI is therefore 7/10 = 0.7. The IPC is 1/CPI = 1.43.\\
 CPI = 0.7 cycles/instruction\\
-IPC = 1.43 instructions/cycle\\
+IPC = 1.43 instructions/cycle
 
 \subsection{Instruction Level Parallelism}
 
-\cleardoublepage
-\section{Impact of Cache Access Time and Replacement Policy}
-
-\subsection{Miss Rate Analysis}
 \begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
-\Xhline{2\arrayrulewidth}
-\textbf{Transaction} & & & & & & & & & & & \\
-\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{L0} & \textbf{L1} & \textbf{L2} & \textbf{L3} & \textbf{L4} & \textbf{L5} & \textbf{L6} & \textbf{L7}\\
-\Xhline{2\arrayrulewidth}
-0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
-0x030 & 0x0 & 0x3 & m &     &     & 0x0 &     &     &     &     &     \\
-0x07c & 0x0 & 0x7 & m &     &     &     & 0x0 &     &     &     &     \\
-0x070 & 0x0 & 0x7 & h &     &     &     &     &     &     &     & 0x0 \\
-0x100 & 0x2 & 0x0 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x2 & 0x1 & m & 0x2 &     &     &     &     &     &     &     \\
-0x204 & 0x4 & 0x0 & m &     & 0x2 &     &     &     &     &     &     \\
-0x214 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
-0x308 & 0x6 & 0x0 & m &     & 0x4 &     &     &     &     &     &     \\
-0x110 & 0x2 & 0x1 & m & 0x6 &     &     &     &     &     &     &     \\
-0x114 & 0x2 & 0x1 & h &     & 0x2 &     &     &     &     &     &     \\
-0x118 & 0x2 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x11c & 0x2 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x410 & 0x8 & 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x2 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
-0x510 & 0xa & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
-0x110 & 0x2 & 0x1 & m &     & 0xa &     &     &     &     &     &     \\
-0x610 & 0xc & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
-0x110 & 0x2 & 0x1 & m &     & 0xc &     &     &     &     &     &     \\
-0x710 & 0xe & 0x1 & m &     & 0x2 &     &     &     &     &     &     \\
-\Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 16}} \\
-\hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.8}} \\
-\Xhline{2\arrayrulewidth}
-\end{tabular}
-\caption{Direct-Mapped Cache Contents Over Time}
+\begin{center}
+\includegraphics[scale=0.5]{singleiteri.eps}
+\label{default}
+\end{center}
+\caption{Instruction Dependency Graph for Single Iteration}
 \end{figure}
+The longest path contains 4 nodes.
+The ideal ILP for a single iteration is 10/4 = 2.5.
 
 \begin{figure}[H]
-\centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
-\Xhline{2\arrayrulewidth}
-\textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
-\cline{5-6}
-\cline{7-8}
-\cline{9-10}
-\cline{11-12}
-\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} \\
-\Xhline{2\arrayrulewidth}
-0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
-0x030 & 0x0 & 0x3 & m &     &     &     &     & 0x0 &     &     &     \\
-0x07c & 0x1 & 0x3 & m &     &     &     &     &     &     & 0x0 &     \\
-0x070 & 0x1 & 0x3 & h &     &     &     &     &     &     &     & 0x1 \\
-0x100 & 0x4 & 0x0 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
-0x204 & 0x8 & 0x0 & m &     &     & 0x4 &     &     &     &     &     \\
-0x214 & 0x8 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
-0x308 & 0xc & 0x0 & m &     &     &     & 0x8 &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h & 0xc &     &     &     &     &     &     &     \\
-0x114 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x118 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x11c & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x410 & 0x10& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     &     & 0x10&     &     &     &     \\
-0x510 & 0x14& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     &     & 0x14&     &     &     &     \\
-0x610 & 0x18& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     &     & 0x18&     &     &     &     \\
-0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
-\Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 12}} \\
-\hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.6}} \\
-\Xhline{2\arrayrulewidth}
-\end{tabular}
-}
-\caption{Two-Way Set-Associative Cache Contents Over Time with LRU Replacement}
+\begin{center}
+\includegraphics[scale=0.7]{threeiteri.eps}
+\label{default}
+\end{center}
+\caption{Instruction Dependency Graph for Three Iterations}
 \end{figure}
+The longest path contains 6 nodes. 
+The ideal ILP for three iterations is 30/6 = 5.\\
 
-\begin{figure}[H]
-\centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}cccccccccccc@{}}
-\Xhline{2\arrayrulewidth}
-\textbf{Transaction} & & & & \multicolumn{2}{c}{\textbf{Set 0}} & \multicolumn{2}{c}{\textbf{Set 1}} & \multicolumn{2}{c}{\textbf{Set 2}} & \multicolumn{2}{c}{\textbf{Set 3}} \\
-\cline{5-6}
-\cline{7-8}
-\cline{9-10}
-\cline{11-12}
-\textbf{Address} & \textbf{tag} & \textbf{idx} & \textbf{m/h} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} & \textbf{Way 0} & \textbf{Way 1} \\
-\Xhline{2\arrayrulewidth}
-0x024 & 0x0 & 0x2 & m &  -  &  -  &  -  &  -  &  -  &  -  &  -  &  -  \\
-0x030 & 0x0 & 0x3 & m &     &     &     &     & 0x0 &     &     &     \\
-0x07c & 0x1 & 0x3 & m &     &     &     &     &     &     & 0x0 &     \\
-0x070 & 0x1 & 0x3 & h &     &     &     &     &     &     &     & 0x1 \\
-0x100 & 0x4 & 0x0 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & m & 0x4 &     &     &     &     &     &     &     \\
-0x204 & 0x8 & 0x0 & m &     &     & 0x4 &     &     &     &     &     \\
-0x214 & 0x8 & 0x1 & m &     & 0x8 &     &     &     &     &     &     \\
-0x308 & 0xc & 0x0 & m &     &     &     & 0x8 &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h & 0xc &     &     &     &     &     &     &     \\
-0x114 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x118 & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x11c & 0x4 & 0x1 & h &     &     &     &     &     &     &     &     \\
-0x410 & 0x10& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & h &     &     &     & 0x10&     &     &     &     \\
-0x510 & 0x14& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & m &     &     & 0x14&     &     &     &     &     \\
-0x610 & 0x18& 0x1 & m &     &     &     &     &     &     &     &     \\
-0x110 & 0x4 & 0x1 & m &     &     &     & 0x18&     &     &     &     \\
-0x710 & 0x1c& 0x1 & m &     &     &     &     &     &     &     &     \\
-\Xhline{2\arrayrulewidth}
-\multicolumn{12}{l}{\textbf{Number of Misses = 14}} \\
-\hline
-\multicolumn{12}{l}{\textbf{Miss Rate = 0.7}} \\
-\Xhline{2\arrayrulewidth}
-\end{tabular}
-}
-\caption{Two-Way Set-Associative Cache Contents Over Time with FIFO Replacement}
-\end{figure}
-
-\subsection{Sequential Tag Check then Memory Access}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
-\hline
-\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-tag\_decoder & 3 + 2$\times$2 & 7 \\
-tag\_mem 	& 10 + [(4+27)/16] & 12 \\
-tag\_cmp		& 3 + 2[log2(26)] & 13 \\
-tag\_and		& 2 - 1 & 1\\
-data\_decoder& 3 + 2$\times$3 & 9 \\
-data\_mem	& 10 + [(8+128)/16] & 19 \\
-rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
-rdata\_reg\_M1& 1 & 1 \\
-\hline
-\textbf{Total} & & \textbf{73} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-tag\_decoder & 3 + 2$\times$2 & 7 \\
-tag\_mem 	& 10 + [(4+27)/16] & 12 \\
-tag\_cmp		& 3 + 2[log2(26)] & 13 \\
-tag\_and		& 2 - 1 & 1\\
-data\_decoder& 3 + 2$\times$3 & 9 \\
-data\_mem	& 10 + [(8+128)/16] & 19 \\
-\hline
-\textbf{Total} & & \textbf{62} \\
-\hline
-\end{tabular}
-\captionsetup{justification=centering}
-\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with 
-\\ Serialized Tag Check before Data Access}
-\end{figure}
-The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the need for the tag check result to go through the data\_decoder. It happens that the data\_decoder?s delay is relatively significant (9$\tau$). This connection is needed so that the data can be outputted from the correct way. 
-
-\subsection{Parallel Read Hit Path}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
-\hline
-\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-addr\_mux	& 3[log2(2)] + [5/8] & 4 \\
-data\_decoder& 3 + 2$\times$3 & 9 \\
-data\_mem	& 10 + [(8+128)/16] & 19 \\
-rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
-rdata\_reg\_M1& 1 & 1 \\
-\hline
-\textbf{Total} & & \textbf{44} \\
-\hline
-\end{tabular}
-\caption{Critical Path and Cycle Time for Direct Mapped Cache with
-\\ Parallel Read Hit}
-\end{figure}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
-\hline
-\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-addr\_mux	& 3[log2(2)] + [5/8] & 4 \\
-data\_decoder& 3 + 2$\times$2 & 7 \\
-data\_mem	& 10 + [(8+128)/16] & 19 \\
-rdata\_mux	& 3[log2(4)] + [32/8] & 10 \\
-way\_mux		& 3[log2(2)] + [32/8] & 7 \\
-rdata\_reg\_M1& 1 & 1 \\
-\hline
-\textbf{Total} & & \textbf{49} \\
-\hline
-\end{tabular}
-\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
-\\ Parallel Read Hit}
-\end{figure}
-The reason that the 2-way set-associative microarchitecture is slower than the direct-mapped microarchitecture is the way\_mux, which is needed to output the data from the correct way. This mux has a delay of 7$\tau$, which is relatively significant. 
-
-\subsection{Pipelined Write Hit Path}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
-\hline
-\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-tag\_decoder & 3 + 2$\times$3 & 9 \\
-tag\_mem 	& 10 + [(8+26)/16] & 13 \\
-tag\_cmp		& 3 + 2[log2(25)] & 13 \\
-tag\_and		& 2 - 1 & 1\\
-wen\_and		& 2 - 1 & 1\\
-wen\_reg\_M1	& 1 & 1\\
-\hline
-\textbf{Total} & & \textbf{39} \\
-\hline
-\end{tabular}
-\caption{Critical Path and Cycle Time for Direct Mapped Cache with
-\\ Pipelined Write Hit}
-\end{figure}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}llr@{}}
-\hline
-\textbf{Component} & \textbf{Delay Equation} & \textbf{Delay($\tau$)} \\
-\hline
-addr\_reg\_M0 & 1 & 1 \\
-tag\_decoder & 3 + 2$\times$2 & 7 \\
-tag\_mem 	& 10 + [(4+27)/16] & 12 \\
-tag\_cmp		& 3 + 2[log2(25)] & 13 \\
-tag\_and		& 2 - 1 & 1\\
-wen\_and		& 2 - 1 & 1\\
-wen\_reg\_M1	& 1 & 1\\
-\hline
-\textbf{Total} & & \textbf{36} \\
-\hline
-\end{tabular}
-\caption{Critical Path and Cycle Time for 2-Way Set-Associative Cache with
-\\ Pipelined Write Hit}
-\end{figure}
-The reason that the direct-mapped microarchitecture is slower than the 2-way set-associative microarchitecture is the larger tag\_decoder, which is needed to fetch the correct tag from the tag memory. Because the direct mapped cache uses a 3 to 8 decoder instead of a smaller 2 to 4 decoder of the 2-way set associative cache, the critical path is longer. There is also 1$\tau$ extra delay for the tag\_mem due to it being 8 rows instead of 4 rows in the 2-way set-associative cache.
-
-\subsection{Average Memory Access Latency}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}ccccccc@{}}
-\Xhline{2\arrayrulewidth}
-& & & \textbf{Hit} & \textbf{Miss} & \textbf{Miss} & \\
-& & \textbf{Replacement} & \textbf{Time} & \textbf{Rate} & \textbf{Penalty} & \textbf{AMAL} \\
-\textbf{Associativity} & \textbf{$\mu$arch} & \textbf{Policy} & \textbf{($\tau$)} & \textbf{(ratio)} & \textbf{($\tau$)} & \textbf{($\tau$)} \\
-\Xhline{2\arrayrulewidth}
-Direct Mapped   & Seq & n/a & 68 & 0.8 & 300 & 308\\
-2-way Set Assoc & Seq & LRU & 73 & 0.6 & 300 & 253\\
-2-way Set Assoc & Seq & FIFO& 73 & 0.7 & 300 & 283\\
-Direct Mapped   & PP  & n/a & 44 & 0.8 & 300 & 284\\
-2-way Set Assoc & PP  & LRU & 49 & 0.6 & 300 & 229\\
-2-way Set Assoc & PP  & FIFO& 49 & 0.7 & 300 & 259\\
-\Xhline{2\arrayrulewidth}
-\end{tabular}
-\caption{Average Memory Access Latency for Six Cache Configurations}
-\end{figure}
-The pipelined 2-way set-associative cache with a LRU replacement policy has the lowest average memory access time. I think that this conclusion is fairly general due to several factors. Set associative caches generally performed better than direct mapped caches due to its better ability to handle sparser data. Due to the pipelined write and parallel read hit, the cycle time is also much lower than the sequential architecture. The LRU policy is very beneficial for real world programs that generally display temporal locality in data use. I think that in most cases, it is safe to say that we should choose this configuration. However, in some specific cases, this may not be the best choice. For example, for programs that have very structured spatial locality, it might be better to use a direct mapped cache due to its larger index. This can improve performance slightly with the lower cycle time. Also in technology where energy consumption and heat dissipation is a larger concern, the parallel read hit design can be bad due to wasted power in reading the data memory even though there was no tag hit. 
-
-\cleardoublepage
-\section{Array vs. List Cache Behavior}
-\begin{figure}[H]
-\centering
-\begin{tabular}{@{\extracolsep{3pt}}lccccccc@{}}
-\Xhline{2\arrayrulewidth}
-& & & & \multicolumn{4}{c}{\textbf{CPI Breakdown}}\\
-\cline{5-8}
-& \textbf{Number of} & & \textbf{Execution} & \textbf{Useful} & \textbf{Raw} & \textbf{Control} & \textbf{Memory} \\
-\textbf{Part} & \textbf{Instructions} & \textbf{CPI} & \textbf{Time (cyc)} & \textbf{Work} & \textbf{Stalls} & \textbf{Squashes} & \textbf{Stalls}\\
-\hline
-\textbf{Part 4.A} & 256 & 1.5 & 384 & 1 & 0.25 & 0 & 0.25\\
-\hline
-\textbf{Part 4.B} & 256 & 2.25 & 576 & 1 & 1 & 0 & 0.25\\
-\Xhline{2\arrayrulewidth}
-\end{tabular}
-\caption{Execution Time for Reverse Operation on Array and Linked List Data Structures}
-\end{figure}
-
-For the cycle type:\\
-u = cycle of useful work\\
-r = cycle lost due to RAW stal\\
-m = cycle lost due to memory stall\\
-c = cycle lost due to control squashes\\
-
-\subsection{Analyzing Performance of an Array Data Structure}
-Table on next page.\\
-The loop runs 32 times. Therefore, the total number of instructions executed is 32 $\times$ 8 = 256 instructions. 
-The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both loads. Because the cacheline is 16 bytes, these misses will occur every 4 loops. The number of cycles in this cache-miss loop is 18. For when both load words find a hit in the cache (between the latter two bold lines), the cycle count for the loop is 10. This occurs 3 times out of every 4 loops. Therefore, the total cycles for 4 loops is 18 + 3$\times$10 = 48. This is then looped 8 times for a total of 32 loops. Therefore, the total number of cycles for the program (ignoring the first 4 instructions for setup) is 8 $\times$ 48 = 384. The CPI for the entire program is therefore 384/256 = 1.5.
-Here is a breakdown of the CPI for each cycle type:\\
-\begin{lstlisting}
-First Iteration Cycle Type Breakdown:
-u = 8 cycles
-m = 8 cycles
-r = 0 cycle
-c = 2 cycles
-Second Iteration Cycle Type Breakdown:
-u = 8 cycles
-m = 0 cycles
-r = 0 cycle
-c = 2 cycles
-Overall CPI Breakdown:
-u = 8*8 + 24*8 = 256 cycles, 256/256 = 1.00 CPI
-m = 8*8 + 24*0 =  64 cycles,  64/256 = 0.25 CPI
-r = 8*0 + 24*0 =   0 cycles,   0/256 = 0.00 CPI
-c = 8*2 + 24*2 =  64 cycles,  64/256 = 0.25 CPI
-total                                 = 1.50 CPI
-\end{lstlisting}
-\begin{landscape}
-\begin{figure}[H]
-\centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
-\hline
-Cycle type: &  &  &  &  & m & m & m & m & u & m & m & m & m & u & u & u & u & u & u & u & c & c & u & u & u & u & u & u & u & u & c & c & u \\ \hline
-Instruction & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 \\ \hline
-lw r12, 0(r4) & F & D & X & M & M & M & M & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r13, 0(r5) &  & F & D & X & X & X & X & X & M & M & M & M & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-sw r12, 0(r5) &  &  & F & D & D & D & D & D & X & X & X & X & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-sw r13, 0(r4) &  &  &  & F & F & F & F & F & D & D & D & D & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r14, r5, 0 &  &  &  &  &  &  &  &  & F & F & F & F & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r4, r4, 4 &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-addiu r5, r5, -4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-bne r4, r14, loop &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-opA &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & - & - & - &  &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-opB &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & - & - & - & - &  &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r12, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  &  \\ \hline
-lw r13, 0(r5) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  &  \\ \hline
-sw r12, 0(r5) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  &  \\ \hline
-sw r13, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  &  \\ \hline
-addiu r14, r5, 0 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  &  \\ \hline
-addiu r4, r4, 4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  &  \\ \hline
-addiu r5, r5, -4 &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  &  \\ \hline
-bne r4, r14, loop &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W &  &  &  \\ \hline
-opA &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & - & - & - &  &  \\ \hline
-opB &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & - & - & - & - &  \\ \hline
-lw r12, 0(r4) &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & F & D & X & M & W \\ \hline
-\end{tabular}
-}
-\caption{Array Data Structure Pipeline Diagram}
-\end{figure}
-\end{landscape}
-
-\subsection{Analyzing Performance of a Linked-List Data Structure}
-Table on next page.\\
-The loop runs 32 times. Therefore, the total number of instructions executed is 32 $\times$ 8 = 256 instructions. 
-The first iteration (between the first two bold lines) shows the pipeline flow when the cache misses both of the first two loads. The number of cycles in this cache-miss loop is 18. On the second iteration (between the latter two bold lines), those first 2 load words will still be misses because they are in a different 16-byte location due to each node taking up an entire cacheline. r4 and r5 are changed to point to new nodes on the previous iteration, so these new nodes will need to be brought into the cache. Therefore, the second iteration and all other iterations have the same cycle count as the first iteration. The total number of cycles for the program (ignoring the first 4 instructions for setup) is 32 $\times$ 18 = 576. The CPI for the entire program is therefore 576/256 = 2.25.
-Here is a breakdown of the CPI for each cycle type:\\
-\begin{lstlisting}
-All Iterations Cycle Type Breakdown:
-u = 8 cycles
-m = 8 cycles
-r = 0 cycle
-c = 2 cycles
-Overall CPI Breakdown:
-u = 32*8 = 256 cycles, 256/256 = 1.00 CPI
-m = 32*8 = 256 cycles, 256/256 = 1.00 CPI
-r = 32*0 =   0 cycles,   0/256 = 0.00 CPI
-c = 32*2 =  64 cycles,  64/256 = 0.25 CPI
-total                          = 2.25 CPI
-\end{lstlisting}
-\begin{landscape}
-\begin{figure}[H]
-\centering
-{\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|}
-\hline
-Cycle type:       &   &   &   &   & m & m & m & m & u & m  & m  & m  & m  & u  & u  & u  & u  & u  & u  & u  & c  & c  & m  & m  & m  & m  & u  & m  & m  & m  & m  & u  & u  & u  & u  & u  & u  & u  & c  & c  & u  \\ \hline
-Instruction       & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 & 34 & 35 & 36 & 37 & 38 & 39 & 40 & 41 \\ \hline
-lw r12, 0(r4)     & F & D & X & M & M & M & M & M & W &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r13, 0(r5)     &   & F & D & X & X & X & X & X & M & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-sw r12, 0(r5)     &   &   & F & D & D & D & D & D & X & X  & X  & X  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-sw r13, 0(r4)     &   &   &   & F & F & F & F & F & D & D  & D  & D  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-addiu r14, r5, 0  &   &   &   &   &   &   &   &   & F & F  & F  & F  & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r4, 4(r4)      &   &   &   &   &   &   &   &   &   &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r5, 8(r5)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-bne r4, r14, loop &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-opA               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-opB               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r12, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-lw r13, 0(r5)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & X  & X  & X  & X  & M  & M  & M  & M  & M  & W  &    &    &    &    &    &    &    &    &    \\ \hline
-sw r12, 0(r5)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    & F  & D  & D  & D  & D  & D  & X  & X  & X  & X  & X  & M  & W  &    &    &    &    &    &    &    &    \\ \hline
-sw r13, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    & F  & F  & F  & F  & F  & D  & D  & D  & D  & D  & X  & M  & W  &    &    &    &    &    &    &    \\ \hline
-addiu r14, r5, 0  &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & F  & F  & F  & F  & D  & X  & M  & W  &    &    &    &    &    &    \\ \hline
-lw r4, 4(r4)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    &    \\ \hline
-lw r5, 8(r5)      &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    &    \\ \hline
-bne r4, r14, loop &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  &    &    &    \\ \hline
-opA               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & -  & -  & -  &    &    \\ \hline
-opB               &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & -  & -  & -  & -  &    \\ \hline
-lw r12, 0(r4)     &   &   &   &   &   &   &   &   &   &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    & F  & D  & X  & M  & W  \\ \hline
-\end{tabular}
-}
-\caption{Linked List Data Structure Pipeline Diagram}
-\end{figure}
-\end{landscape}
-
-\subsection{Comparison of Data Structures}
-In this example, the regular array data structure performed better due to its better spacial locality. Its values are packed right next to each other, so each cacheline can hold 4 values. The linked list can only pack 1 value (node) in each cacheline, so on every loop, the cache needs to read from the memory to bring in the new nodes. \\
-The execution time of the regular array will improve slightly with larger cachelines (in relation to 1/x where x is the cacheline size) and the CPI will approach 1.25. However, the linked list will not improve at all because we are still only allocating one node per cacheline. This means that on every iteration, we still need to fetch from the memory. \\
-If we now organize multiple linked-list nodes on the same cacheline, the linked-list performance will increase significantly and the CPI will also approach 1.25. This is because we will not have to fetch from the memory on every iteration. With more nodes in each cacheline, the spatial locality increases, and therefore the cache performance also increases. \\
-Assuming the cacheline size stays the same and that the cache size is infinite, the execution time will grow linearly with the number of elements in the data structure. As we had shown above, the steady state behavior stays the same for all iterations after the first iteration. This directly relates to the asymptotic behavior of O(n) for these two data structures. \\
-If we had no cache misses, both execution times will improve and the CPI will be 1.25. This is because the memory accesses will all only take a single cycle and there will be no cycles lost due to memory stall, which was a significant part of the CPI. \\
-The general conclusion is that spatial locality can significantly affect the program performance. Simple and compact data structures such as arrays or matrices can achieve better performance due to its ability to pack more values into a single cacheline. Dynamic and irregular structures such as list, trees, and graphs are much worse due to the possible sparsity of the data. This means that while traversing these structures, the next node may not be near the previous node, which will make it likely to cause a cache miss. These structures are also much more complex, so we are not able to pack as many of them into a cacheline as we can with the simple data structures. This further negatively impacts the performance of programs. 
-
+The ideal ILP for N iterations of the loop is simply 10N/(3+N). 
 
 \end{document}
