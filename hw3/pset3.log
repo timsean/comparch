@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 NOV 2015 17:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 NOV 2015 21:13
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -389,58 +389,60 @@ Underfull \hbox (badness 10000) in paragraph at lines 125--140
 
  []
 
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 172--175
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 204--207
-
- []
-
-[3
+[2] [3
 
 ]
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 210.
- (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
+Underfull \hbox (badness 10000) in paragraph at lines 218--221
+
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 250--253
 
  []
 
-[4]
-Underfull \hbox (badness 10000) in paragraph at lines 304--307
-
- []
-
-[5] [6
-
-] [7] [8] [9] [10]
-Underfull \hbox (badness 10000) in paragraph at lines 593--598
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 600--604
-
- []
-
-[11
-
-] [12
+[4
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 658--662
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 256.
+ (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
+Underfull \hbox (badness 10000) in paragraph at lines 296--299
 
  []
 
-[13
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 350--353
 
-] [14
+ []
+
+[6] [7
+
+] [8] [9] [10] [11]
+Underfull \hbox (badness 10000) in paragraph at lines 641--646
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--652
+
+ []
+
+[12
+
+] [13
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 706--710
+
+ []
+
+[14
 
 ] [15
+
+] [16
 
 ] (./pset3.aux) ) 
 Here is how much of TeX's memory you used:
@@ -468,10 +470,10 @@ ve/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive
 5/texmf-dist/fonts/type1/public/cm-super/sfsl1000.pfb></usr/local/texlive/2015/
 texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2015/te
 xmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on pset3.pdf (15 pages, 246679 bytes).
+Output written on pset3.pdf (16 pages, 252291 bytes).
 PDF statistics:
- 115 PDF objects out of 1000 (max. 8388607)
- 82 compressed objects within 1 object stream
+ 118 PDF objects out of 1000 (max. 8388607)
+ 84 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
