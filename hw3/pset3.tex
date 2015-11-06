@@ -177,9 +177,9 @@ pkt1   &    & I  & R0 & L0 & L1 & R1 & O  &    &    &    &    &    &    \\ \hlin
 pkt2   &    &    & I  & R0 & L0 & L1 & R1 & O  &    &    &    &    &    \\ \hline
 pkt3   &    &    &    & I  & R0 & L0 & L1 & R1 & O  &    &    &    &    \\ \hline
 pkt4   &    &    &    &    & I  & R0 & L0 & L1 & R1 & O  &    &    &    \\ \hline
-pkt5   &    &    &    &    &    & I  & RO & L0 & L1 & R1 & O  &    &    \\ \hline
-pkt6   &    &    &    &    &    &    & I  & RO & L0 & L1 & R1 & O  &    \\ \hline
-pkt7   &    &    &    &    &    &    &    & I  & RO & L0 & L1 & R1 & O  \\ \hline
+pkt5   &    &    &    &    &    & I  & R0 & L0 & L1 & R1 & O  &    &    \\ \hline
+pkt6   &    &    &    &    &    &    & I  & R0 & L0 & L1 & R1 & O  &    \\ \hline
+pkt7   &    &    &    &    &    &    &    & I  & R0 & L0 & L1 & R1 & O  \\ \hline
 \end{tabular}
 }
 \caption{Pipeline Diagram for Elastic Buffering with Two-Element Channel Buffers}
@@ -187,6 +187,29 @@ pkt7   &    &    &    &    &    &    &    & I  & RO & L0 & L1 & R1 & O  \\ \hlin
 As show by the bolded vertical lines, in steady state, it takes 1 cycle to move a packet. This gives a peak terminal throughput of 1 packet per cycle.
 
 \subsection{Pipeline Diagram for Round-Robin Arbitration}
+
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Cycle: & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 \\ \hline
+pkt0-2 & I  & R0 & L0 & L1 & R1 & O  &    &    &    &    &    &    &    \\ \hline
+pkt0-3 & I  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    &    &    \\ \hline
+pkt1-2 &    & I  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    &    \\ \hline
+pkt1-3 &    & I  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    \\ \hline
+pkt2-2 &    &    & I  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    \\ \hline
+pkt2-3 &    &    & I  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    \\ \hline
+pkt3-2 &    &    &    & I  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  &    \\ \hline
+pkt3-3 &    &    &    & I  & q  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  \\ \hline
+\end{tabular}
+}
+\caption{Pipeline Diagram for Round-Robin Arbitration}
+\end{figure}
+There is no steady state. As shown by the pipeline diagram, the number of elements in the $R_{0,1}$ queue continues to increase. This is due to the the $C_{0,3}$ channel not able to sustain the required throughput (2 phits per cycle). This means that packets will need to be stalled in R0 during arbitration and therefore cause future packets to be continuously queued up. 
+
+\subsection{Global Fairness for Round-Robin Arbitration}
+
 
 \cleardoublepage
 \section{In-Order Superscalar Processors}
@@ -375,6 +398,8 @@ The ideal ILP for a single iteration is 10/4 = 2.5.
 The longest path contains 6 nodes. 
 The ideal ILP for three iterations is 30/6 = 5.\\
 
-The ideal ILP for N iterations of the loop is simply 10N/(3+N). 
+The ideal ILP for N iterations of the loop is simply 10N/(3+N).\\
+
+The IPC of the quad-issue processor is less than the ideal ILP due to several different reasons. The first is that the quad issue processor can only execute at most 4 instructions simultaneously. This thereby limits the IPC to a max of 4. 
 
 \end{document}
