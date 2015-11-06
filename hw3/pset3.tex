@@ -80,7 +80,7 @@
 \hline
 \textbf{Part 1.A} & \textbf{Baseline Tree Topology} & 4 & 3 & 2 & 2 & 1 & 3 & 11\\
 \hline
-\textbf{Part 1.B} & \textbf{Fat-Tree Topology} & 4 & 3 & 11/3 & 2 & 1 & 3 & 16\\
+\textbf{Part 1.B} & \textbf{Fat-Tree Topology} & 4 & 3 & 3.83 & 2 & 1 & 3 & 16.5\\
 \Xhline{2\arrayrulewidth}
 \end{tabular}
 \caption{Zero-Load Latency for Tree Topologies}
@@ -128,15 +128,15 @@ Because the layout topology and channel width of the fat-tree is the same as the
 The only difference here is the average per-hop router latency due to different radix routers. To calculate this, we take a similar approach to calculating the average hop counts. We use a weighted average for each node-pair due to the different latencies of different routers.\\
 0->0: 3\\
 0->1: 3\\
-0->2: (3+5+3)/3 = 11/3\\
-0->3: (3+5+3)/3 = 11/3\\
-0->4: (3+5+5+3)/4 = 16/4 = 4\\
-0->5: (3+5+5+3)/4 = 16/4 = 4\\ 
-0->6: (3+5+5+3)/4 = 16/4 = 4\\ 
-0->7: (3+5+5+3)/4 = 16/4 = 4\\
-The average is: (3+3+11/3+11/3+4+4+4+4)/8=(88/3)/8=11/3\\
+0->2: 3+5+3 = 11\\
+0->3: 3+5+3 = 11\\
+0->4: 3+5+5+3 = 16\\
+0->5: 3+5+5+3 = 16\\ 
+0->6: 3+5+5+3 = 16\\ 
+0->7: 3+5+5+3 = 16\\
+The average is: (3+3+11+11+16+16+16+16)/24=92/24=23/6=3.833\\
 From this, we can calculate the zero-load latency.\\
-$t_0$=3*11/3+2*1+3=16 cycles
+$t_0$=3*23/6+2*1+3=16.5 cycles
 \subsection{Integrating Processors, Memories, and Networks}
 
 \cleardoublepage
