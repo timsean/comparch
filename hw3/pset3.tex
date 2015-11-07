@@ -209,8 +209,8 @@ pkt3-3 &    &    &    & I  & q  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  \\ \hlin
 There is no steady state. As shown by the pipeline diagram, the number of elements in the $R_{0,1}$ queue continues to increase. This is due to the the $C_{0,3}$ channel not able to sustain the required throughput (2 phits per cycle). This means that packets will need to be stalled in R0 during arbitration and therefore cause future packets to be continuously queued up. 
 
 \subsection{Global Fairness for Round-Robin Arbitration}
-
-
+No, the network does not have global strong fairness.\\
+Assume that initially, the priority goes to the top input port. In our traffic pattern, inputs 0, 1, and 2 will try to send their packets to output 1, and input 3 will try to send its packets to output 3. First, we see that both inputs 0 and 1 try to access channel $C_{0,0}$, so round-robin arbitration will occur. This means on channel $C_{0,0}$, inputs 0 and 1 will each receive 50$\%$ of the bandwidth. In $R_{0,1}$, because input 2 will access the top output to channel $C_{0,2}$ and input 3 will access the bottom output to channel $C_{0,3}$. Therefore, no arbitration is needed and each channel can sustain full bandwidth from a single input. In $R_{1,1}$, the bottom input coming from channel $C_{0,3}$ will always go to output 3, so again, no arbitration is needed. This means that the requests from input 3 will always be served. In $R_{1,0}$, both inputs want to access output 1, so arbitration is needed. This means that 50$\%$ of the bandwidth comes from the top input (coming from channel $C_{0,0}$) and the other 50 comes from the bottom input (from channel $C_{0,2}$). This means that on output 1, 50$\%$ of the bandwidth comes from input 2, 25$\%$ from input 1, and 25$\%$ from input 0. From this we can see that requests from all inputs are NOT served equally often. 
 \cleardoublepage
 \section{In-Order Superscalar Processors}
 
