@@ -139,6 +139,16 @@ From this, we can calculate the zero-load latency.\\
 $t_0$=3*23/6+2*1+3=16.5 cycles
 \subsection{Integrating Processors, Memories, and Networks}
 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=1]{graph.png}
+\label{default}
+\end{center}
+\caption{Average Latency versus Offered Bandwidth Curve}
+\end{figure}
+
+The red lines represent the baseline tree, the black lines represent the fat-tree, and the green line represents where the application will be located on the latency vs offered bandwidth curve. 
+
 \cleardoublepage
 \section{Channel and Router Microarchitecture}
 
@@ -162,7 +172,8 @@ pkt7   &    &    &    &    &    &    &    &    &    &    &    & I  & I  & q  & R
 }
 \caption{Pipeline Diagram for Elastic Buffering with One-Element Channel Buffers}
 \end{figure}
-As show by the bolded vertical lines, in steady state, it takes 2 cycles to move a packet. This gives a peak terminal throughput of 1/2=0.5 packets per cycle.
+As show by the bolded vertical lines, in steady state, it takes 2 cycles to move a packet. This gives a peak terminal throughput of 1/2=0.5 packets per cycle.\\
+The ideal flow control should provide 1 packet per cycle. This design cannot achieve the throughput of ideal flow control due the stalling required to wait for the channel queues to become empty.
 
 \subsection{Throughput with Two Elements of Buffering per Channel Queue}
 
@@ -184,7 +195,8 @@ pkt7   &    &    &    &    &    &    &    & I  & R0 & L0 & L1 & R1 & O  \\ \hlin
 }
 \caption{Pipeline Diagram for Elastic Buffering with Two-Element Channel Buffers}
 \end{figure}
-As show by the bolded vertical lines, in steady state, it takes 1 cycle to move a packet. This gives a peak terminal throughput of 1 packet per cycle.
+As show by the bolded vertical lines, in steady state, it takes 1 cycle to move a packet. This gives a peak terminal throughput of 1 packet per cycle.\\
+The ideal flow control should provide 1 packet per cycle. This design is able to achieve the throughput of ideal flow control.
 
 \subsection{Pipeline Diagram for Round-Robin Arbitration}
 
