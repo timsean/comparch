@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  6 NOV 2015 20:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  6 NOV 2015 23:30
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -307,6 +307,9 @@ File: lstlang3.sty 2014/09/06 1.5e listings language file
 
 LaTeX Warning: Label `default' multiply defined.
 
+
+LaTeX Warning: Label `default' multiply defined.
+
 )
 \openout1 = `pset3.aux'.
 
@@ -402,22 +405,32 @@ File: graph.png Graphic file (type png)
  <use graph.png>
 Package pdftex.def Info: graph.png used on input line 144.
 (pdftex.def)             Requested size: 358.69922pt x 219.21844pt.
- [2] [3 <./graph.png>] [4
-
-] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 253--256
+ [2]
+Underfull \hbox (badness 10000) in paragraph at lines 150--151
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 285--288
+Underfull \hbox (badness 10000) in paragraph at lines 152--153
+
+ []
+
+[3 <./graph.png>] [4
+
+] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 260--263
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--295
 
  []
 
 [6
 
 ]
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 291.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 298.
  (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 ) [7]
@@ -429,15 +442,15 @@ Package epstopdf Info: Source file: <singleiteri.eps>
 (epstopdf)                    size: 10458 bytes
 (epstopdf)             Command: <repstopdf --outfile=singleiteri-eps-converted-
 to.pdf singleiteri.eps>
-(epstopdf)             \includegraphics on input line 393.
+(epstopdf)             \includegraphics on input line 400.
 Package epstopdf Info: Output file is already uptodate.
 
 <singleiteri-eps-converted-to.pdf, id=42, 520.94624pt x 337.26pt>
 File: singleiteri-eps-converted-to.pdf Graphic file (type pdf)
 
 <use singleiteri-eps-converted-to.pdf>
-Package pdftex.def Info: singleiteri-eps-converted-to.pdf used on input line 39
-3.
+Package pdftex.def Info: singleiteri-eps-converted-to.pdf used on input line 40
+0.
 (pdftex.def)             Requested size: 260.47249pt x 168.62958pt.
 Package epstopdf Info: Source file: <threeiteri.eps>
 (epstopdf)                    date: 2015-11-06 17:48:12
@@ -447,23 +460,23 @@ Package epstopdf Info: Source file: <threeiteri.eps>
 (epstopdf)                    size: 13406 bytes
 (epstopdf)             Command: <repstopdf --outfile=threeiteri-eps-converted-t
 o.pdf threeiteri.eps>
-(epstopdf)             \includegraphics on input line 403.
+(epstopdf)             \includegraphics on input line 410.
 Package epstopdf Info: Output file is already uptodate.
 
 <threeiteri-eps-converted-to.pdf, id=43, 473.77pt x 708.6475pt>
 File: threeiteri-eps-converted-to.pdf Graphic file (type pdf)
 
 <use threeiteri-eps-converted-to.pdf>
-Package pdftex.def Info: threeiteri-eps-converted-to.pdf used on input line 403
+Package pdftex.def Info: threeiteri-eps-converted-to.pdf used on input line 410
 .
 (pdftex.def)             Requested size: 331.63673pt x 496.04988pt.
  [8 <./singleiteri-eps-converted-to.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 408--410
+Underfull \hbox (badness 10000) in paragraph at lines 415--417
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 411--412
+Underfull \hbox (badness 10000) in paragraph at lines 418--419
 
  []
 
@@ -496,7 +509,7 @@ st/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist
 onts/type1/public/cm-super/sfsl1000.pfb></usr/local/texlive/2015/texmf-dist/fon
 ts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2015/texmf-dist/fonts
 /type1/urw/courier/ucrr8a.pfb>
-Output written on pset3.pdf (9 pages, 328694 bytes).
+Output written on pset3.pdf (9 pages, 330879 bytes).
 PDF statistics:
  109 PDF objects out of 1000 (max. 8388607)
  75 compressed objects within 1 object stream
