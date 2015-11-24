@@ -138,7 +138,7 @@ TODO!
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c!{\vrule width 1.5pt}c!{\vrule width 1.5pt}c!{\vrule width 1.5pt}c|}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
 Cycle:            & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 \\ \hline
 mul  r1, r2, r3   & F & D & I & Y0& Y1& Y2& Y3& W & C &   &    &    &    &    &    &    \\ \hline
@@ -148,36 +148,104 @@ mul  r1, r2, r5   &   &   &   & F & D & I & Y0& Y1& Y2& Y3& W  & r  & r  & r  & 
 addu r6, r6, r9   &   &   &   &   & F & D & i & I & X & W & r  & r  & r  & r  & r  & C  \\ \hline
 \end{tabular}
 }
-\caption{Pipeline Diagram for Elastic Buffering with Two-Element Channel Buffers}
+\caption{Pipeline Diagram with Register Renaming}
 \end{figure}
-As show by the bolded vertical lines, in steady state, it takes 1 cycle to move a packet. This gives a peak terminal throughput of 1 packet per cycle.\\
-The ideal flow control should provide 1 packet per cycle. This design is able to achieve the throughput of ideal flow control.
 
-\subsection{Pipeline Diagram for Round-Robin Arbitration}
+\subsection{Register Renaming with Pointers in the IQ/ROB}
 
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccccc@{}}
 \hline
-Cycle: & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 \\ \hline
-pkt0-2 & I  & R0 & L0 & L1 & R1 & O  &    &    &    &    &    &    &    \\ \hline
-pkt0-3 & I  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    &    &    \\ \hline
-pkt1-2 &    & I  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    &    \\ \hline
-pkt1-3 &    & I  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    &    \\ \hline
-pkt2-2 &    &    & I  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    &    \\ \hline
-pkt2-3 &    &    & I  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  &    &    \\ \hline
-pkt3-2 &    &    &    & I  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  &    \\ \hline
-pkt3-3 &    &    &    & I  & q  & q  & q  & R0 & R0 & L0 & L1 & R1 & O  \\ \hline
+& \multicolumn{4}{c}{\textbf{Stage}} & \multicolumn{9}{c}{\textbf{RT}} & & \\
+\cline{2-5}
+\cline{6-14}
+\textbf{Cycle} & \textbf{D} & \textbf{I} & \textbf{W} & \textbf{C} & \textbf{r1} & \textbf{r2} & \textbf{r3} & \textbf{r4} & \textbf{r5} & \textbf{r6} & \textbf{r7} & \textbf{r8} & \textbf{r9} & \textbf{Free List} & \textbf{IQ} \\ \hline
+0 &   &   &   &   & p0 & p1 & p2 & p3 & p4 & p5 & p6 & p7 & p8 & p9,pA,pB,pC,pD &          \\ \hline
+1 & 1 &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p9,pA,pB,pC,pD &          \\ \hline
+2 & 2 & 1 &   &   & p9*& :  & :  & :  & :  & :  & :  & :  & :  & pA,pB,pC,pD    & p9/p1/p2 \\ \hline
+3 & 3 &   &   &   & :  & :  & :  & pA*& :  & :  & :  & :  & :  & pB,pC,pD       & pA/p9*/p4\\ \hline
+4 & 4 & 3 &   &   & :  & :  & :  & :  & :  & pB*& :  & :  & :  & pC,pD          & pB/p6/p7 \\ \hline
+5 & 5 & 4 &   &   & pC*& :  & :  & :  & :  & :  & :  & :  & :  & pD             & pC/p1/p4 \\ \hline
+6 &   & 2 & 3 &   & :  & :  & :  & :  & :  & pD*& :  & :  & :  &                & pD/pB*/p8\\ \hline
+7 &   & 5 & 1 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
+8 &   &   &   & 1 & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
+9 &   &   & 5 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
+10&   &   & 4 &   & :  & :  & :  & :  & :  & pD & :  & :  & :  & p0             &          \\ \hline
+11&   &   & 2 &   & pC & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
+12&   &   &   & 2 & :  & :  & :  & pA & :  & :  & :  & :  & :  & p0             &          \\ \hline
+13&   &   &   & 3 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3          &          \\ \hline
+14&   &   &   & 4 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5       &          \\ \hline
+15&   &   &   & 5 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9    &          \\ \hline
+16&   &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9,pB &          \\ \hline
 \end{tabular}
 }
-\caption{Pipeline Diagram for Round-Robin Arbitration}
-\end{figure}
-There is no steady state. As shown by the pipeline diagram, the number of elements in the $R_{0,1}$ queue continues to increase. This is due to the the $C_{0,3}$ channel not able to sustain the required throughput (2 phits per cycle). This means that packets will need to be stalled in R0 during arbitration and therefore cause future packets to be continuously queued up. 
+\caption{Microarchitectural State (RT/FL/IQ) for Reg Renaming with Pointers in the IQ/ROB}
+\end{figure} 
 
-\subsection{Global Fairness for Round-Robin Arbitration}
-No, the network does not have global strong fairness.\\
-Assume that initially, the priority goes to the top input port. In our traffic pattern, inputs 0, 1, and 2 will try to send their packets to output 1, and input 3 will try to send its packets to output 3. First, we see that both inputs 0 and 1 try to access channel $C_{0,0}$, so round-robin arbitration will occur. This means on channel $C_{0,0}$, inputs 0 and 1 will each receive 50$\%$ of the bandwidth. In $R_{0,1}$, because input 2 will access the top output to channel $C_{0,2}$ and input 3 will access the bottom output to channel $C_{0,3}$. Therefore, no arbitration is needed and each channel can sustain full bandwidth from a single input. In $R_{1,1}$, the bottom input coming from channel $C_{0,3}$ will always go to output 3, so again, no arbitration is needed. This means that the requests from input 3 will always be served. In $R_{1,0}$, both inputs want to access output 1, so arbitration is needed. This means that 50$\%$ of the bandwidth comes from the top input (coming from channel $C_{0,0}$) and the other 50 comes from the bottom input (from channel $C_{0,2}$). This means that on output 1, 50$\%$ of the bandwidth comes from input 2, 25$\%$ from input 1, and 25$\%$ from input 0. From this we can see that requests from all inputs are NOT served equally often. 
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{\extracolsep{3pt}}cccccc@{}}
+\hline
+& \multicolumn{5}{c}{\textbf{ROB}} \\
+\cline{2-6}
+\textbf{Cycle} & \textbf{0} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\ \hline
+0 &            &            &            &            &            \\ \hline
+1 &            &            &            &            &            \\ \hline
+2 & p9*/r1/p0  &            &            &            &            \\ \hline
+3 &     |      & pA*/r4/p3  &            &            &            \\ \hline
+4 &     |      &     |      & pB*/r6/p5  &            &            \\ \hline
+5 &     |      &     |      &     |      & pC*/r1/p9* &            \\ \hline
+6 &     |      &     |      &     |      &     |      & pD*/r6/pB* \\ \hline
+7 &     |      &     |      & pB/r6/p5   &     |      & pD*/r6/pB  \\ \hline
+8 & p9/r1/p0   &     |      &     |      & pC*/r1/p9  &     |      \\ \hline
+9 &            &     |      &     |      &     |      &     |      \\ \hline
+10&            &     |      &     |      &     |      & pD/r6/pB   \\ \hline
+11&            &     |      &     |      & pC/r1/p9   &     |      \\ \hline
+12&            & pA/r4/p3   &     |      &     |      &     |      \\ \hline
+13&            &            &\textbullet &     |      &     |      \\ \hline
+14&            &            &            &\textbullet &     |      \\ \hline
+15&            &            &            &            &\textbullet \\ \hline
+\end{tabular}
+}
+\caption{Microarchitectural State (ROB) for Reg Renaming with Pointers in the IQ/ROB}
+\end{figure} 
+
+\subsection{Register Renaming with Values in the IQ/ROB}
+
+\begin{figure}[H]
+\centering
+{\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccccc@{}}
+\hline
+& \multicolumn{4}{c}{\textbf{Stage}} & \multicolumn{9}{c}{\textbf{RT}} & & \\
+\cline{2-5}
+\cline{6-14}
+\textbf{Cycle} & \textbf{D} & \textbf{I} & \textbf{W} & \textbf{C} & \textbf{r1} & \textbf{r2} & \textbf{r3} & \textbf{r4} & \textbf{r5} & \textbf{r6} & \textbf{r7} & \textbf{r8} & \textbf{r9} & \textbf{Free List} & \textbf{IQ} \\ \hline
+0 &   &   &   &   & p0 & p1 & p2 & p3 & p4 & p5 & p6 & p7 & p8 & p9,pA,pB,pC,pD &          \\ \hline
+1 & 1 &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p9,pA,pB,pC,pD &          \\ \hline
+2 & 2 & 1 &   &   & p9*& :  & :  & :  & :  & :  & :  & :  & :  & pA,pB,pC,pD    & p9/p1/p2 \\ \hline
+3 & 3 &   &   &   & :  & :  & :  & pA*& :  & :  & :  & :  & :  & pB,pC,pD       & pA/p9*/p4\\ \hline
+4 & 4 & 3 &   &   & :  & :  & :  & :  & :  & pB*& :  & :  & :  & pC,pD          & pB/p6/p7 \\ \hline
+5 & 5 & 4 &   &   & pC*& :  & :  & :  & :  & :  & :  & :  & :  & pD             & pC/p1/p4 \\ \hline
+6 &   & 2 & 3 &   & :  & :  & :  & :  & :  & pD*& :  & :  & :  &                & pD/pB*/p8\\ \hline
+7 &   & 5 & 1 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
+8 &   &   &   & 1 & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
+9 &   &   & 5 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
+10&   &   & 4 &   & :  & :  & :  & :  & :  & pD & :  & :  & :  & p0             &          \\ \hline
+11&   &   & 2 &   & pC & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
+12&   &   &   & 2 & :  & :  & :  & pA & :  & :  & :  & :  & :  & p0             &          \\ \hline
+13&   &   &   & 3 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3          &          \\ \hline
+14&   &   &   & 4 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5       &          \\ \hline
+15&   &   &   & 5 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9    &          \\ \hline
+16&   &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9,pB &          \\ \hline
+\end{tabular}
+}
+\caption{Microarchitectural State for Reg Renaming with Values in the IQ/ROB}
+\end{figure} 
+
 \cleardoublepage
 \section{In-Order Superscalar Processors}
 
