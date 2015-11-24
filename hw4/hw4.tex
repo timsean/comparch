@@ -156,7 +156,7 @@ addu r6, r6, r9   &   &   &   &   & F & D & i & I & X & W & r  & r  & r  & r  & 
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccccc@{}}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccclc@{}}
 \hline
 & \multicolumn{4}{c}{\textbf{Stage}} & \multicolumn{9}{c}{\textbf{RT}} & & \\
 \cline{2-5}
@@ -218,29 +218,29 @@ addu r6, r6, r9   &   &   &   &   & F & D & i & I & X & W & r  & r  & r  & r  & 
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccccc@{}}
+\begin{tabular}{@{\extracolsep{3pt}}cccccccccccccccccccc@{}}
 \hline
 & \multicolumn{4}{c}{\textbf{Stage}} & \multicolumn{9}{c}{\textbf{RT}} & & \\
 \cline{2-5}
 \cline{6-14}
-\textbf{Cycle} & \textbf{D} & \textbf{I} & \textbf{W} & \textbf{C} & \textbf{r1} & \textbf{r2} & \textbf{r3} & \textbf{r4} & \textbf{r5} & \textbf{r6} & \textbf{r7} & \textbf{r8} & \textbf{r9} & \textbf{Free List} & \textbf{IQ} \\ \hline
-0 &   &   &   &   & p0 & p1 & p2 & p3 & p4 & p5 & p6 & p7 & p8 & p9,pA,pB,pC,pD &          \\ \hline
-1 & 1 &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p9,pA,pB,pC,pD &          \\ \hline
-2 & 2 & 1 &   &   & p9*& :  & :  & :  & :  & :  & :  & :  & :  & pA,pB,pC,pD    & p9/p1/p2 \\ \hline
-3 & 3 &   &   &   & :  & :  & :  & pA*& :  & :  & :  & :  & :  & pB,pC,pD       & pA/p9*/p4\\ \hline
-4 & 4 & 3 &   &   & :  & :  & :  & :  & :  & pB*& :  & :  & :  & pC,pD          & pB/p6/p7 \\ \hline
-5 & 5 & 4 &   &   & pC*& :  & :  & :  & :  & :  & :  & :  & :  & pD             & pC/p1/p4 \\ \hline
-6 &   & 2 & 3 &   & :  & :  & :  & :  & :  & pD*& :  & :  & :  &                & pD/pB*/p8\\ \hline
-7 &   & 5 & 1 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
-8 &   &   &   & 1 & :  & :  & :  & :  & :  & :  & :  & :  & :  &                &          \\ \hline
-9 &   &   & 5 &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
-10&   &   & 4 &   & :  & :  & :  & :  & :  & pD & :  & :  & :  & p0             &          \\ \hline
-11&   &   & 2 &   & pC & :  & :  & :  & :  & :  & :  & :  & :  & p0             &          \\ \hline
-12&   &   &   & 2 & :  & :  & :  & pA & :  & :  & :  & :  & :  & p0             &          \\ \hline
-13&   &   &   & 3 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3          &          \\ \hline
-14&   &   &   & 4 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5       &          \\ \hline
-15&   &   &   & 5 & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9    &          \\ \hline
-16&   &   &   &   & :  & :  & :  & :  & :  & :  & :  & :  & :  & p0,p3,p5,p9,pB &          \\ \hline
+\textbf{Cycle} & \textbf{D} & \textbf{I} & \textbf{W} & \textbf{C} & \textbf{r1} & \textbf{r2} & \textbf{r3} & \textbf{r4} & \textbf{r5} & \textbf{r6} & \textbf{r7} & \textbf{r8} & \textbf{r9} & \textbf{IQ} & \textbf{0} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\ \hline
+0 &   &   &   &   &    &    &    &    &    &    &    &    &    &           &        &        &        &        &        \\ \hline
+1 & 1 &   &   &   &    &    &    &    &    &    &    &    &    &           &        &        &        &        &        \\ \hline
+2 & 2 & 1 &   &   & p0*&    &    &    &    &    &    &    &    & p0/r2/r3  & p0*/r1 &        &        &        &        \\ \hline
+3 & 3 &   &   &   &  | &    &    & p1*&    &    &    &    &    & p1/p0*/r5 &   |    & p1*/r4 &        &        &        \\ \hline
+4 & 4 & 3 &   &   &  | &    &    &  | &    & p2*&    &    &    & p2/r7/r8  &   |    &   |    & p2*/r6 &        &        \\ \hline
+5 & 5 & 4 &   &   & p3*&    &    &  | &    &  | &    &    &    & p3/r2/r5  &   |    &   |    &   |    & p3*/r1 &        \\ \hline
+6 &   & 2 & 3 &   &  | &    &    &  | &    & p4*&    &    &    & p4/p2*/r9 &   |    &   |    &   |    &   |    & p4*/r6 \\ \hline
+7 &   & 5 & 1 &   &  | &    &    &  | &    &  | &    &    &    &           &   |    &   |    & p2/r6  &   |    &   |    \\ \hline
+8 &   &   &   & 1 &  | &    &    &  | &    &  | &    &    &    &           & p0/r1  &   |    &   |    &   |    &   |    \\ \hline
+9 &   &   & 5 &   &  | &    &    &  | &    &  | &    &    &    &           &        &   |    &   |    &   |    &   |    \\ \hline
+10&   &   & 4 &   &  | &    &    &  | &    & p4 &    &    &    &           &        &   |    &   |    &   |    & p4/r6  \\ \hline
+11&   &   & 2 &   & p3 &    &    &  | &    &  | &    &    &    &           &        &   |    &   |    & p3/r1  &   |    \\ \hline
+12&   &   &   & 2 &  | &    &   &$\cdot$&  &  | &    &    &    &           &        & p1/r4  &   |    &   |    &   |    \\ \hline
+13&   &   &   & 3 &  | &    &    &    &    &  | &    &    &    &           &        &        &   |    &   |    &   |    \\ \hline
+14&   &   &   & 4&$\cdot$&  &    &    &    &  | &    &    &    &           &        &      &\textbullet&  |    &   |    \\ \hline
+15&   &   &   & 5 &    &    &    &    &    &  | &    &    &    &           &        &        &      &\textbullet&  |    \\ \hline
+16&   &   &   &   &    &    &    &    &   &$\cdot$&  &    &    &           &        &        &        &    &\textbullet \\ \hline
 \end{tabular}
 }
 \caption{Microarchitectural State for Reg Renaming with Values in the IQ/ROB}
