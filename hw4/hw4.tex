@@ -464,6 +464,12 @@ i & src[i] & \textbf{BHSR} & \textbf{BHT} & \textbf{P} & \textbf{A} & \textbf{BH
 \caption{Summary of Branch Predictor Accuracies}
 \end{figure}
 
+For branch B0, two-level temporal achieved the best accuracy while two-bit FSM and two-level spatial performed equally worse. This is because the branch pattern repeats in time (as shown by the BHSRT and the actual branch result; the pattern is T,T,NT,NT,T,T,NT,NT,etc). This means that the BHT of each BHSRT element repeats in time, which allows for high accuracy with a temporal two-level predictor. The two-bit FSM performed very badly due to it lagging behind for each prediction. Because the branch result switches every two iterations, the branch predictor has to swing back and forth between the strong states of both sides. This is very expensive and causes only 1/4 correct prediction for every T,T,NT,NT pattern. The two-level spatial also performed very badly because it behaves the same as the two-bit FSM (it in fact is functionally the same). This is because the branch B2 is always taken, therefore fixing the BHSR to 1 during the execution of branch B0 (thereby forcing to act as a two-bit FSM).\\
+
+For branch B1, two-level spatial achieved the best accuracy while two-bit FSM and two-level temporal performed similarly worse. This is because whenever branch B0 chooses NT, branch B1 will also be NT (when a value is greater than saturation, it will always also be greater than 0). Therefore, there is a spatial correlation between branch B0 and branch B1. The two-level temporal achieved worse accuracy because there isn't a fully repetitive pattern in the input data, therefore, there is no definitive temporal repetition in the branching pattern. The two-level FSM again performed the worst due to the same reason as state in branch B0.\\
+
+For branch B2, all predictors performed equally well. This is because the branch pattern is very simple (loop). The branching pattern is always taken except for the last cycle. Because all of the predictors start on weakly taken state, they will always converge to a strongly taken state and always guess taken.\\
+
 \cleardoublepage
 \section{Connections to Classic Architectures}
 
