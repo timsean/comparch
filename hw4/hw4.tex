@@ -123,7 +123,7 @@ The total issue to commit cycle count is 18.
 
 \subsection{Scheduling Comparison}
 
-TODO!
+The optimized scheduler is able to achieve higher performance due to better exploitation of ILP. In the instruction sequence, there are two main sequences of data dependencies, so the optimal schedule will be to interleave these two sequences, along with the two independent div instructions, to maximize commits per cycle. Also because we have an un-pipelined divider, we will also want to start the divide instructions as early as possible (which is what the optimal schedule does). We might be able to implement this in hardware by using a mixed priority scheduling algorithm. The scheduler will have to place divide instructions at the highest priority (with the oldest div instruction issuing first). The next highest priority will be the oldest ready instruction that is not a divide. This will implicitly interleave instructions with data dependencies. 
 
 \cleardoublepage
 \section{Register Renaming}
@@ -284,26 +284,26 @@ Therefore, the total number of cycles it takes to execute 64 iterations is 9*64 
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c!{\vrule width 1.5pt}}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c!{\vrule width 1.5pt}c|c|c|c!{\vrule width 1.5pt}}
 \hline
 Cycle:            & 0  & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 \\ \hline
 lw r1 , 0(r2)     & F  & D  & I  & L0 & L1 & W  & C  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
 mul r3, r1, r4    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
 sw r3, 0(r5)      &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
 addiu r2, r2, 4   &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
-addiu r5, r5, 4   &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
-addiu r6, r6, -1  &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
-bne r6, r0, loop  &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    \\ \hline
+addiu r5, r5, 4   &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
+addiu r6, r6, -1  &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
+bne r6, r0, loop  &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
 opA               &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    &    &    &    \\ \hline
-lw r1 , 0(r2)     &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    \\ \hline
-mul r3, r1, r4    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & r  & C  &    &    &    &    &    &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
+mul r3, r1, r4    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    \\ \hline
 sw r3, 0(r5)      &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    \\ \hline
-addiu r2, r2, 4   &    &    &    &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    \\ \hline
 addiu r5, r5, 4   &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
-addiu r6, r6, -1  &    &    &    &    &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    \\ \hline
+addiu r6, r6, -1  &    &    &    &    &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
 bne r6, r0, loop  &    &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    \\ \hline
 opA               &    &    &    &    &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    \\ \hline
-lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & r  & C  &    &    &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & C  &    &    &    &    \\ \hline
 mul r3, r1, r4    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    \\ \hline
 sw r3, 0(r5)      &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    \\ \hline
 addiu r2, r2, 4   &    &    &    &    &    &    &    &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    \\ \hline
@@ -315,9 +315,9 @@ opA               &    &    &    &    &    &    &    &    &    &    &    & F  & 
 }
 \caption{Pipeline Diagram for Out-of-Order Dual-Issue Processor}
 \end{figure}
-As shown by the bold vertical lines, during steady state, it takes 8 cycles to execute 2 loops. 
+As shown by the bold vertical lines, during steady state, each loop takes 4 cycles (we are not counting the commit right before the first bold line because it is simply an initial transient delay).
 
-Therefore, the total number of cycles it takes to execute 64 iterations is 8*32 = 256 cycles.
+Therefore, the total number of cycles it takes to execute 64 iterations is 4*64 = 256 cycles.
 
 \subsection{Dual-Issue In-Order versus Dual-Issue Out-of-Order}
 
