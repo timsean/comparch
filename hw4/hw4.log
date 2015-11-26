@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  25 NOV 2015 23:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  25 NOV 2015 23:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -406,15 +406,44 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 ] [4] [5
 
 ]
-[6] [7
-
-] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 472--480
+Underfull \hbox (badness 10000) in paragraph at lines 323--324
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 472--480
+Underfull \hbox (badness 10000) in paragraph at lines 325--326
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 327--328
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 329--330
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 331--332
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 333--334
+
+ []
+
+[6] [7
+
+] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 474--482
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 474--482
 
  []
 
@@ -442,7 +471,7 @@ live/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texli
 ve/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive
 /2015/texmf-dist/fonts/type1/public/cm-super/sfsl1000.pfb></usr/local/texlive/2
 015/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on hw4.pdf (9 pages, 193969 bytes).
+Output written on hw4.pdf (9 pages, 194354 bytes).
 PDF statistics:
  80 PDF objects out of 1000 (max. 8388607)
  57 compressed objects within 1 object stream

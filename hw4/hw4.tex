@@ -320,15 +320,17 @@ Therefore, the total number of cycles it takes to execute 64 iterations is 9*32 
 
 \subsection{Dual-Issue In-Order versus Dual-Issue Out-of-Order}
 
-To achieve proper branch prediction, we will need a branch predictor (such as a BHT) and especially a branch target buffer in the fetch stage. This will allow us to both predict the branch result and the branch target in the fetch stage, which enables fetching the speculative instructions on the next cycle. 
+To achieve proper branch prediction, we will need a branch predictor (such as a BHT) and especially a branch target buffer in the fetch stage. This will allow us to both predict the branch result and the branch target in the fetch stage, which enables fetching the speculative instructions on the next cycle. \\
 
-In the instruction sequence, sw r3, 0(r5) and addiu r5, r5, 4 will take advantage of register renaming by renaming the destination register r5. Without renaming, the addiu instruction will cause a WAR with the sw instruction, because the addiu instruction completes before the sw instruction is issued. 
+In the instruction sequence, sw r3, 0(r5) and addiu r5, r5, 4 will take advantage of register renaming by renaming the destination register r5. Without renaming, the addiu instruction will cause a WAR with the sw instruction, because the addiu instruction completes before the sw instruction is issued. \\
 
-All lw r1, 0(r2) are issued before the sw instruction is issued in the previous iteration. However, because they access different locations in memory (assuming r2 $\neq$ r5), no memory disambiguation is required. The only case in which memory disambiguation will be required is when r2 + 4 = r5 (this is because the lw instruction is always accessing r2 from the previous iteration plus 4).
+All lw r1, 0(r2) are issued before the sw instruction is issued in the previous iteration. However, because they access different locations in memory (assuming r2 $\neq$ r5), no memory disambiguation is required. The only case in which memory disambiguation will be required is when r2 + 4 = r5 (this is because the lw instruction is always accessing r2 from the previous iteration plus 4).\\
 
-We will never need to replay the load instruciton that 
+We will never need to replay the load instruction that need to be replayed when issued speculatively. This is because the load instruction is never loading from the same location as the store instruction in the previous cycle (same reason as the previous question).\\
 
-Optimizing the code will help the in-order processor, but not significantly. We can group the fetch blocks such that "addiu r2, r2, 4" fetches with the lw, "addiu r6, r6, -1" fetches with the mul, and "addiu r5, r5, 4" fetches with the sw. With this optimal scheduling, we are only saving a single cycle per iteration. Without out of order issue, we cannot start the next iteration before the current iteration finishes execution, which is how the out of order processor achieve most of the improvements from. Therefore, no, optimized scheduling for the in-order processor will not significantly help the performance. 
+The out-of-order processor is significantly better than the in-order processor. This is mainly due to the ability to issue out-of-order, which allows the execution of the next iteration to start before the end of the current iteration. By overlapping the execution of successive iterations, we were able to double the performance (from 0.78 to 1.56 IPC) of the execution of this instruction sequence.\\
+
+Optimizing the code will help the in-order processor, but not significantly. We can group the fetch blocks such that "addiu r2, r2, 4" fetches with the lw, "addiu r6, r6, -1" fetches with the mul, and "addiu r5, r5, 4" fetches with the sw. With this optimal scheduling, we are only saving a single cycle per iteration. Without out of order issue, we cannot start the next iteration before the current iteration finishes execution, which is how the out of order processor achieve most of the improvements from. Therefore, no, optimized scheduling for the in-order processor will not significantly help the performance. \\
 
 \cleardoublepage
 \section{Branch Prediction}
