@@ -53,7 +53,6 @@
 \begin{document}
 \maketitle
 \newcommand*{\tableindent}{\hspace*{0.3cm}}%
-Worked with Gautam Ramaswamy, Gaurab Bhattacharya, and Sacheth Hegde.
 \section{Tree Network Topologies} 
 
 \subsection{Baseline I3L Microarchitecture}
@@ -284,40 +283,40 @@ Therefore, the total number of cycles it takes to execute 64 iterations is 9*64 
 \begin{figure}[H]
 \centering
 {\setlength{\tabcolsep}{2pt}
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c!{\vrule width 1.5pt}c|c|c|c!{\vrule width 1.5pt}}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}c|c|c|c|c|c|c|c|c!{\vrule width 1.5pt}}
 \hline
-Cycle:            & 0  & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 \\ \hline
-lw r1 , 0(r2)     & F  & D  & I  & L0 & L1 & W  & C  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-mul r3, r1, r4    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
-sw r3, 0(r5)      &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
-addiu r2, r2, 4   &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
-addiu r5, r5, 4   &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
-addiu r6, r6, -1  &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
-bne r6, r0, loop  &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
-opA               &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    &    &    &    \\ \hline
-lw r1 , 0(r2)     &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & C  &    &    &    &    &    &    &    &    \\ \hline
-mul r3, r1, r4    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    \\ \hline
-sw r3, 0(r5)      &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    \\ \hline
-addiu r2, r2, 4   &    &    &    &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    \\ \hline
-addiu r5, r5, 4   &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
-addiu r6, r6, -1  &    &    &    &    &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
-bne r6, r0, loop  &    &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    \\ \hline
-opA               &    &    &    &    &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    \\ \hline
-lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & C  &    &    &    &    \\ \hline
-mul r3, r1, r4    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    \\ \hline
-sw r3, 0(r5)      &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    \\ \hline
-addiu r2, r2, 4   &    &    &    &    &    &    &    &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    \\ \hline
-addiu r5, r5, 4   &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    \\ \hline
-addiu r6, r6, -1  &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    \\ \hline
-bne r6, r0, loop  &    &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  \\ \hline
-opA               &    &    &    &    &    &    &    &    &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    \\ \hline
+Cycle:            & 0  & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 \\ \hline
+lw r1 , 0(r2)     & F  & D  & I  & L0 & L1 & W  & C  &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+mul r3, r1, r4    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+sw r3, 0(r5)      &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    &    &    \\ \hline
+addiu r5, r5, 4   &    &    & F  & D  & I  & A  & W  & r  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
+addiu r6, r6, -1  &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    &    \\ \hline
+bne r6, r0, loop  &    &    &    & F  & D  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
+opA               &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    &    &    &    &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    & F  & D  & I  & L0 & L1 & W  & r  & r  & r  & C  &    &    &    &    &    &    &    &    &    \\ \hline
+mul r3, r1, r4    &    &    &    &    & F  & D  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    &    &    &    &    &    \\ \hline
+sw r3, 0(r5)      &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    &    &    &    &    &    \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & C  &    &    &    &    &    &    &    \\ \hline
+addiu r5, r5, 4   &    &    &    &    &    &    & F  & D  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    &    &    &    &    &    \\ \hline
+addiu r6, r6, -1  &    &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & C  &    &    &    &    &    &    \\ \hline
+bne r6, r0, loop  &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & C  &    &    &    &    &    \\ \hline
+opA               &    &    &    &    &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    &    &    &    &    &    \\ \hline
+lw r1 , 0(r2)     &    &    &    &    &    &    &    &    & F  & D  & i  & I  & L0 & L1 & W  & r  & r  & C  &    &    &    &    &    \\ \hline
+mul r3, r1, r4    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & i  & I  & Y0 & Y1 & Y2 & Y3 & W  & C  &    &    &    \\ \hline
+sw r3, 0(r5)      &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & i  & i  & i  & i  & I  & S  & W  & C  &    &    \\ \hline
+addiu r2, r2, 4   &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    &    \\ \hline
+addiu r5, r5, 4   &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & r  & C  &    \\ \hline
+addiu r6, r6, -1  &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & B  & W  & r  & r  & r  & r  & C  &    \\ \hline
+bne r6, r0, loop  &    &    &    &    &    &    &    &    &    &    &    & F  & D  & i  & i  & I  & A  & W  & r  & r  & r  & r  & C  \\ \hline
+opA               &    &    &    &    &    &    &    &    &    &    &    & F  & *  & *  & *  & *  & *  & *  & *  & *  & *  & *  &    \\ \hline
 \end{tabular}
 }
 \caption{Pipeline Diagram for Out-of-Order Dual-Issue Processor}
 \end{figure}
-As shown by the bold vertical lines, during steady state, each loop takes 4 cycles (we are not counting the commit right before the first bold line because it is simply an initial transient delay).
+As shown by the bold vertical lines, during steady state, it takes 9 cycles to execute 2 iterations of the loop. The first commit (by lw) of the second iteration is not included because the commit is part of previous iteration's last cycle (this pattern is assumed to repeat; for example, the commit stage of the fourth iteration will be in the same cycle as the commit stage of the bne instruction at the end of the third iteration).
 
-Therefore, the total number of cycles it takes to execute 64 iterations is 4*64 = 256 cycles.
+Therefore, the total number of cycles it takes to execute 64 iterations is 9*32 = 288 cycles.
 
 \subsection{Dual-Issue In-Order versus Dual-Issue Out-of-Order}
 
@@ -452,5 +451,12 @@ i & src[i] & \textbf{BHSR} & \textbf{BHT} & \textbf{P} & \textbf{A} & \textbf{BH
 }
 \caption{Summary of Branch Predictor Accuracies}
 \end{figure}
+
+\section{Connections to Classic Architectures}
+
+\subsection{IBM System/360 Model 91 with the Tomasulo Algorithm}
+
+
+\subsection{Register Renaming in the MIPS R10K and the Intel P6 Microarchitectures}
 
 \end{document}
