@@ -253,7 +253,7 @@ addu r6, r6, r9   &   &   &   &   & F & D & i & I & X & W & r  & r  & r  & r  & 
 
 \cleardoublepage
 \section{In-Order vs. Out-of-Order Superscalar Processors}
-
+Worked with Sacheth Hegde and Gautam Ramaswamy.
 \subsection{Performance of In-Order Dual-Issue Processor}
 
 \begin{figure}[H]
@@ -319,6 +319,16 @@ As shown by the bold vertical lines, during steady state, it takes 9 cycles to e
 Therefore, the total number of cycles it takes to execute 64 iterations is 9*32 = 288 cycles.
 
 \subsection{Dual-Issue In-Order versus Dual-Issue Out-of-Order}
+
+To achieve proper branch prediction, we will need a branch predictor (such as a BHT) and especially a branch target buffer in the fetch stage. This will allow us to both predict the branch result and the branch target in the fetch stage, which enables fetching the speculative instructions on the next cycle. 
+
+In the instruction sequence, sw r3, 0(r5) and addiu r5, r5, 4 will take advantage of register renaming by renaming the destination register r5. Without renaming, the addiu instruction will cause a WAR with the sw instruction, because the addiu instruction completes before the sw instruction is issued. 
+
+All lw r1, 0(r2) are issued before the sw instruction is issued in the previous iteration. However, because they access different locations in memory (assuming r2 $\neq$ r5), no memory disambiguation is required. The only case in which memory disambiguation will be required is when r2 + 4 = r5 (this is because the lw instruction is always accessing r2 from the previous iteration plus 4).
+
+We will never need to replay the load instruciton that 
+
+Optimizing the code will help the in-order processor, but not significantly. We can group the fetch blocks such that "addiu r2, r2, 4" fetches with the lw, "addiu r6, r6, -1" fetches with the mul, and "addiu r5, r5, 4" fetches with the sw. With this optimal scheduling, we are only saving a single cycle per iteration. Without out of order issue, we cannot start the next iteration before the current iteration finishes execution, which is how the out of order processor achieve most of the improvements from. Therefore, no, optimized scheduling for the in-order processor will not significantly help the performance. 
 
 \cleardoublepage
 \section{Branch Prediction}
@@ -452,11 +462,20 @@ i & src[i] & \textbf{BHSR} & \textbf{BHT} & \textbf{P} & \textbf{A} & \textbf{BH
 \caption{Summary of Branch Predictor Accuracies}
 \end{figure}
 
+\cleardoublepage
 \section{Connections to Classic Architectures}
 
 \subsection{IBM System/360 Model 91 with the Tomasulo Algorithm}
-
+The IBM System/360 Model 91 supports out of order writeback/completion as shown by the example instruction sequence on pg.171 of Hennessy and Patterson. Register renaming was added to eliminate WAW and WAR hazards. Furthermore, System/360 also has out of order issue (in the textbook, this is stated as the execute stage; pg. 174 of Hennessy and Patterson). Instructions are issued in order from the issue queue, but stalled in the functional units until their source operands are available. This is functionally the same as an out of order issue stage that we have in the IO2E and IO2L microarchitectures. Finally, the writeback stage is most similar to a late commit system. As stated on pg. 172, if multiple instructions write to the same destination register, only the latest instruction is used to update the register file. Therefore, the IBM System/360 Model 91 is most similar to an IO2L architecture. 
 
 \subsection{Register Renaming in the MIPS R10K and the Intel P6 Microarchitectures}
+The MIP R10000 microarchitecture uses a pointer-based register renaming scheme. As stated on page 33 of the report (see source), the register mapping system contains register map tables, free lists, active list, and busy-bit tables. The register map tables takes on the duty of the rename table in our scheme. The register map table keeps track of all current mappings from the PRF to the ARF. The active list then acts as the ROB, keeping track of all current instructions that are active in the processor. The active list holds the ARF register and the previous PRF register. The free list acts exactly like the FL in our pointer-based scheme. The busy-bit tables simply act as the list of valid bits in the ROB table. When combined, these units function as a pointer-based register renaming system.\\ 
+Source: The MIPS R10000 Superscalar Microprocessor by Kenneth C. Yeager \\
+(http://people.cs.pitt.edu/~cho/cs2410/papers/yeager-micromag96.pdf) \\
+\\
+The Intel P-6 microarchitecture uses a register renaming scheme that is similar to a value-based scheme. As stated on page 2 of the tech report (see source), the RAT (register alias table), which is similar to our rename table, determines whether an operand should be taken from the RRF (real register file), which is similar to our ARF, or from the ROB. If a source operand is currently pending, then the reservation station (similar to our issue queue) is given a pointer to a location in ROB instead and the instruction waits until that source operand is no longer pending. This means that all values are stored in either the ROB or the RRF, which is similar to our value-based scheme, where all values are stored in either the ROB or ARF. 
+\\
+Source: Intel's P6 Uses Decoupled Superscalar Design by Linley Gwennap \\
+(http://www.cs.cmu.edu/afs/cs/academic/class/15213-f01/docs/mpr-p6.pdf)\\
 
 \end{document}
