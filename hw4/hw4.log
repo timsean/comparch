@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  25 NOV 2015 18:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  25 NOV 2015 20:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -407,59 +407,21 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 213.
  [3
 
-] [4]
-Package epstopdf Info: Source file: <singleiteri.eps>
-(epstopdf)                    date: 2015-11-06 17:18:59
-(epstopdf)                    size: 23176 bytes
-(epstopdf)             Output file: <singleiteri-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-11-22 17:05:24
-(epstopdf)                    size: 10458 bytes
-(epstopdf)             Command: <repstopdf --outfile=singleiteri-eps-converted-
-to.pdf singleiteri.eps>
-(epstopdf)             \includegraphics on input line 310.
-Package epstopdf Info: Output file is already uptodate.
-
-<singleiteri-eps-converted-to.pdf, id=25, 520.94624pt x 337.26pt>
-File: singleiteri-eps-converted-to.pdf Graphic file (type pdf)
-
-<use singleiteri-eps-converted-to.pdf>
-Package pdftex.def Info: singleiteri-eps-converted-to.pdf used on input line 31
-0.
-(pdftex.def)             Requested size: 260.47249pt x 168.62958pt.
- [5
+] [4] [5
 
 ]
-Package epstopdf Info: Source file: <threeiteri.eps>
-(epstopdf)                    date: 2015-11-06 17:48:12
-(epstopdf)                    size: 38625 bytes
-(epstopdf)             Output file: <threeiteri-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-11-22 17:05:24
-(epstopdf)                    size: 13406 bytes
-(epstopdf)             Command: <repstopdf --outfile=threeiteri-eps-converted-t
-o.pdf threeiteri.eps>
-(epstopdf)             \includegraphics on input line 318.
-Package epstopdf Info: Output file is already uptodate.
+[6
 
-<threeiteri-eps-converted-to.pdf, id=29, 473.77pt x 708.6475pt>
-File: threeiteri-eps-converted-to.pdf Graphic file (type pdf)
-
-<use threeiteri-eps-converted-to.pdf>
-Package pdftex.def Info: threeiteri-eps-converted-to.pdf used on input line 318
-.
-(pdftex.def)             Requested size: 331.63673pt x 496.04988pt.
- [6 <./singleiteri-eps-converted-to.pdf>]
-[7 <./threeiteri-eps-converted-to.pdf>] [8
-
-] [9] (./hw4.aux)
+] [7] (./hw4.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 6029 strings out of 493089
- 89153 string characters out of 6134842
+ 6018 strings out of 493089
+ 88830 string characters out of 6134842
  219563 words of memory out of 5000000
- 9400 multiletter control sequences out of 15000+600000
+ 9392 multiletter control sequences out of 15000+600000
  13971 words of font info for 34 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,11n,43p,317b,1097s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -475,10 +437,10 @@ exmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015/tex
 mf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2015/texmf
 -dist/fonts/type1/public/cm-super/sfsl1000.pfb></usr/local/texlive/2015/texmf-d
 ist/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on hw4.pdf (9 pages, 193615 bytes).
+Output written on hw4.pdf (7 pages, 178209 bytes).
 PDF statistics:
- 90 PDF objects out of 1000 (max. 8388607)
- 62 compressed objects within 1 object stream
+ 70 PDF objects out of 1000 (max. 8388607)
+ 50 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
